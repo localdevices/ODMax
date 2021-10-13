@@ -3,7 +3,7 @@ ODMax
 
 ODMax is a utility to extract still frames from 360-degree videos. At this moment ODMax works with GoPro videos. It may or may not work with other 360 degree camera brands and models but this has not been tested.
 
-To get started with ODMax, setup a python environment. We recommend using a miniconda or anaconda environment. We have conveniently packaged all dependencies for you, and with `conda` these can be installed easily.
+To get started with ODMax, set-up a python environment. We recommend using a miniconda or anaconda environment. We have conveniently packaged all dependencies for you, and with `conda` these can be installed easily.
 
 Installation for direct use
 ---------------------------
