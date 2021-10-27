@@ -1,0 +1,19 @@
+#!/usr/bin/python3
+import os
+import argparse
+
+
+            
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(usage="usage: odmax [options], type odmax --help for options"
+                                     )
+    parser.add_argument('-i', '--infile',
+                        help='Input video file, compatible with OpenCV2')
+    parser.add_argument('-o', '--outpath',
+                        help='Directory to write output files.', default=".")
+    parser.add_argument('-p', '--prefix',
+                        help='Prefix to use for written image files', default="still")
+
+    args = parser.parse_args()
+    # Do something
+    print(f"Your arguments are {args}")
