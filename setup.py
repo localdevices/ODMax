@@ -26,6 +26,7 @@ setup(
         "pip",
         "opencv-python-headless",
         "PyExifTool",
+
     ],
     extras_require={
         "dev": ["pytest", "pytest-cov"],
