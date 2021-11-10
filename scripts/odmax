@@ -1,19 +1,104 @@
 #!/usr/bin/python3
 import os
-import argparse
+import sys
+import cv2
+import numpy as np
+from odmax import io
 
 
-            
+from optparse import OptionParser
+
+def main():
+    parser = create_parser()
+    (options, args) = parser.parse_args()
+    encoder = ".jpg"  # TODO: make this configurable
+    # assertions below
+    if not(options.infile):
+        raise IOError("No input file provided, please use -i option to provide a valid video file")
+    if options.end_time < 0:
+        options.end_time = np.inf
+    if options.end_time < options.start_time:
+        raise ValueError(f"Start time {options.start_time} is smaller than end time {options.end_time}")
+    if options.d_frame < 1:
+        raise ValueError(f"Frame difference {options.d_frame} is smaller than one, has to be at least one")
+    # do something
+    print(f"Processing video {options.infile}")
+    f = io.open_file(options.infile)
+    # get start and end frame
+    start_frame = io.get_frame_number(f, options.start_time)
+    end_frame = io.get_frame_number(f, options.end_time)
+    # TODO: extract metadata
+    frame_n = list(range(start_frame, end_frame + options.d_frame, options.d_frame))
+    for n in frame_n:
+        # extract frame
+        print("Processing frame {:05d}".format(n))
+        img = io.read_frame(f, n)
+        # TODO: reproject
+        # TODO: time stamp img
+        # write file
+        fn_out = os.path.join(options.outpath, "{:s}_{:04d}{:s}").format(options.prefix, n, encoder)
+        cv2.imwrite(fn_out, img)
+    # TODO: return message to user
+
+
+def create_parser():
+    parser = OptionParser()
+    parser.add_option(
+        "-i",
+        "--infile",
+        dest="infile",
+        nargs=1,
+        help='Input video file, compatible with OpenCV2'
+    )
+    parser.add_option(
+        "-o",
+        "--outpath",
+        dest="outpath",
+        nargs=1,
+        help='Directory to write output files.',
+        default=".",
+    )
+    parser.add_option(
+        "-p",
+        "--prefix",
+        dest="prefix",
+        nargs=1,
+        help='Prefix to use for written image files',
+        default="still"
+    )
+    parser.add_option(
+        "-s",
+        "--start-time",
+        dest="start_time",
+        nargs=1,
+        type="float",
+        help='Start time in seconds from start of movie',
+        default=0.
+    )
+    parser.add_option(
+        "-e",
+        "--end-time",
+        dest="end_time",
+        nargs=1,
+        type="float",
+        help='End time in seconds from start of movie',
+        default=-1.
+    )
+    parser.add_option(
+        "-d",
+        "--frame-interval",
+        dest="d_frame",
+        nargs=1,
+        type="int",
+        help="Interval between frames (minim",
+        default=1,
+    )
+
+    if len(sys.argv[1:]) == 0:
+        print("No arguments supplied")
+        parser.print_help()
+        sys.exit()
+    return parser
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(usage="usage: odmax [options], type odmax --help for options"
-                                     )
-    parser.add_argument('-i', '--infile',
-                        help='Input video file, compatible with OpenCV2')
-    parser.add_argument('-o', '--outpath',
-                        help='Directory to write output files.', default=".")
-    parser.add_argument('-p', '--prefix',
-                        help='Prefix to use for written image files', default="still")
-
-    args = parser.parse_args()
-    # Do something
-    print(f"Your arguments are {args}")
+    main()
