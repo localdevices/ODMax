@@ -3,6 +3,30 @@ import os.path
 import cv2
 from datetime import datetime
 
+def open_file(fn):
+    """
+    Open file for reading by cv2
+    :param fn: video file (cv2 compatible)
+    :return: cv2 pointer to file
+    """
+    if isinstance(fn, str):
+        # try to open file with openCV
+        f = cv2.VideoCapture(fn)
+        return f
+    else:
+        raise TypeError(f"{fn} should be a string pointing to a path")
+
+def get_frame_number(f, time):
+    """
+    Get the frame number belonging to the defined time in seconds
+    :param f: pointer to opened video file
+    :param time: seconds from start of video
+    :return:
+    """
+    fps = f.get(cv2.CAP_PROP_FPS)
+    frame_count = f.get(cv2.CAP_PROP_FRAME_COUNT)
+    return int(min(frame_count, time * fps))
+
 def read_frame(f, n):
     """
     Reads frame number n from opened video file f
@@ -11,11 +35,15 @@ def read_frame(f, n):
     :return: img, blob containing frame
     """
     # TODO: assert of f
-    assert(n, int), f"{n} is not an integer"
-    # FIXME: complete this code
-    raise NotImplementedError("Not implemented yet")
+    assert isinstance(n, int), f"{n} is not an integer"
+    # check if frame is beyond length of movie
+    if n > f.get(cv2.CAP_PROP_FRAME_COUNT):
+        raise ValueError(f"The requested frame number {n} is larger than the available frames {cv2.CAP_PROP_FRAME_COUNT}")
+    # wind to the right frame number
+    f.set(cv2.CAP_PROP_POS_FRAMES, n)
+    # extract this frame
+    success, img = f.read()
     return img
-
 
 
 def to_file(fn, img, driver=None):
