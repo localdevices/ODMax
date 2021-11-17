@@ -26,6 +26,7 @@ setup(
         "pip",
         "opencv-python-headless",
         "PyExifTool",
+        "py360convert==0.1.0"
 
     ],
     extras_require={
