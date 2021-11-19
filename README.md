@@ -5,8 +5,11 @@ ODMax is a utility to extract still frames from 360-degree videos. At this momen
 
 To get started with ODMax, set-up a python environment. We recommend using a miniconda or anaconda environment. We have conveniently packaged all dependencies for you, and with `conda` these can be installed easily.
 
-Installation for direct use
----------------------------
+Installation
+------------
+
+### Installation for direct use
+
 If you simply want to add ODMax to an existing python installation or virtual environment, then follow these instructions.
 
 First activate the environment you want ODMax to be installed in (if you don't care about virtual environments, then simply skip this step)
@@ -18,8 +21,7 @@ pip install git+https://github.com/localdevices/ODMax.git
 ```
 That's it! You are good to go!
 
-Installation from code base
----------------------------
+### Installation from code base
 
 To install ODMax from scratch in a new virtual environment go through these steps:
 
@@ -44,6 +46,16 @@ If you just want to use ODMax type:
 pip install .
 ```
 That's it, you are good to go.
+
+Using ODMax
+-----------
+To use ODMax, go to a command line and type 
+```
+odmax --help
+```
+This will provide an overview of the most up-to-date command line options.
+Alternatively, use our jupyter notebook examples to see common use cases on command-line as
+well as directly in the API.
 
 Project organisation
 --------------------
