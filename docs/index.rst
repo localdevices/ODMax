@@ -12,10 +12,12 @@ series into 360 degree stills or Front, Right, Left, Back, Up and Down projected
 tool is development of 3D point clouds and meshes in software such as OpenDroneMap.
 
 .. note::
-   ODMax has been created by Rainbow Sensing to support local people, with local devices and software to monitor their.
+   ODMax has been created by `Rainbow Sensing <https://rainbowsensing.com>`_ to support local people, with local devices and software to monitor their.
    environment. If you like ODMax, require additional functionalities or want to contact us for other work or ideas,
    please email us on info@rainbowsensing.com
 
+.. note::
+   Acknowledgement: the development of ODMax has been funded by the Australian National University - Research School of Biology
 
 .. toctree::
    :maxdepth: 2
