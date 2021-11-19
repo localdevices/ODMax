@@ -48,7 +48,10 @@ def read_frame(f, n):
     f.set(cv2.CAP_PROP_POS_FRAMES, n)
     # extract this frame
     success, img = f.read()
-    return img
+    if success:
+        return img
+    else:
+        raise IOError(f"The requested frame {n} could not be extracted. Perhaps the videofile is damaged.")
 
 def write_frame(img, path=".", prefix="still", encoder="jpg"):
     """
@@ -60,17 +63,16 @@ def write_frame(img, path=".", prefix="still", encoder="jpg"):
     :return:
     """
     if isinstance(img, list):
+        # a 6-face cube is provided, write 6 individual images
         assert (len(img)==6), f"6 images are expected with cube reprojection, but {len(img)} were found"
         for i, c in zip(img, consts.CUBE_SUFFIX):
             assert ((len(i.shape) == 3) and (i.shape[-1] >= 3)), "One of the images you provided is incorrectly shaped, must be 3 dimensional with the last dimension as RGB"
             fn_out = os.path.join(path, "{:s}_{:s}.{:s}").format(prefix, c, encoder.lower())
             cv2.imwrite(fn_out, i)
-        # raise NotImplementedError("6-face cube not yet implemented")
     else:
+        # a single image is provided
         fn_out = os.path.join(path, "{:s}.{:s}").format(prefix, encoder.lower())
         cv2.imwrite(fn_out, img)
-
-
 
 
 def get_exif(fn, fn_out):

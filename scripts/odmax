@@ -13,12 +13,25 @@ def main():
         raise IOError("No input file provided, please use -i option to provide a valid video file")
     if options.end_time < 0:
         options.end_time = np.inf
-    if options.end_time < options.start_time:
-        raise ValueError(f"Start time {options.start_time} is smaller than end time {options.end_time}")
+    if options.end_time <= options.start_time:
+        raise ValueError(f"End time {options.end_time} is smaller or equal than start time {options.start_time}")
     if options.d_frame < 1:
         raise ValueError(f"Frame difference {options.d_frame} is smaller than one, has to be at least one")
     # do something
-    print(f"Processing video {options.infile}")
+    print(f"Processing video  : {options.infile}")
+    print(f"Output path       : {options.outpath}")
+    print(f"Encoder           : {options.encoder.lower()}")
+    print(f"File prefix       : {options.prefix}")
+    print(f"Start time        : {options.start_time} seconds")
+    print(f"End time          : {options.end_time} seconds")
+    print(f"Frame interval    : {options.d_frame}")
+    print(f"Reprojection      : {'enabled' if options.reproject else 'disabled'}")
+    if options.reproject:
+        print(f"Reprojection mode:   {options.mode}")
+        print(f"Face width:          {options.face_w}")
+    print(f"======================")
+    print(f"Start processing:")
+    print(f"======================")
     f = odmax.io.open_file(options.infile)
     # get start and end frame
     start_frame = odmax.io.get_frame_number(f, options.start_time)
@@ -44,7 +57,7 @@ def main():
             prefix="{:s}_{:04d}".format(options.prefix, n),
             encoder=options.encoder
         )
-    # TODO: return message to user
+    print("")
 
 
 def create_parser():
@@ -65,15 +78,6 @@ def create_parser():
         default=".",
     )
     parser.add_option(
-        "-c",
-        "--encoder",
-        dest="encoder",
-        nargs=1,
-        help='encoder to use to write stills (default: jpg). Can be "jpg", "bmp", "jp2", "png" or "webp"',
-        default="jpg"
-    )
-
-    parser.add_option(
         "-p",
         "--prefix",
         dest="prefix",
@@ -82,29 +86,12 @@ def create_parser():
         default="still"
     )
     parser.add_option(
-        "-r",
-        "--reproject",
-        dest="reproject",
-        action="store_true",
-        help='Reproject 360 degree stills to cube with 6 faces',
-        default=False,
-    )
-    parser.add_option(
-        "-f",
-        "--face-width",
-        dest="face_w",
+        "-c",
+        "--encoder",
+        dest="encoder",
         nargs=1,
-        type="int",
-        help='Length of faces of reprojected cube in pixels (default: 256). Only used in combination with --reproject',
-        default=256
-    )
-    parser.add_option(
-        "-m",
-        "--mode",
-        dest="mode",
-        nargs=1,
-        help='Mode of reprojection interpolation, can be "bilinear" or "nearest" (default: "nearest"). Only used in combination with --reproject, default: "bilinear"',
-        default="bilinear"
+        help='encoder to use to write stills (default: jpg). Can be "jpg", "bmp", "jp2", "png" or "webp"',
+        default="jpg"
     )
     parser.add_option(
         "-s",
@@ -130,8 +117,33 @@ def create_parser():
         dest="d_frame",
         nargs=1,
         type="int",
-        help="Interval between frames (minim",
+        help="Interval between frames (default: 1, integer)",
         default=1,
+    )
+    parser.add_option(
+        "-r",
+        "--reproject",
+        dest="reproject",
+        action="store_true",
+        help='Reproject 360 degree stills to cube with 6 faces',
+        default=False,
+    )
+    parser.add_option(
+        "-f",
+        "--face-width",
+        dest="face_w",
+        nargs=1,
+        type="int",
+        help='Length of faces of reprojected cube in pixels (default: 256). Only used in combination with --reproject',
+        default=256
+    )
+    parser.add_option(
+        "-m",
+        "--mode",
+        dest="mode",
+        nargs=1,
+        help='Mode of reprojection interpolation, can be "bilinear" or "nearest" (default: "nearest"). Only used in combination with --reproject, default: "bilinear"',
+        default="bilinear"
     )
     if len(sys.argv[1:]) == 0:
         print("No arguments supplied")

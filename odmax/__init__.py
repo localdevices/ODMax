@@ -1,3 +1,3 @@
-from odmax.consts import *
-from odmax.io import *
-from odmax.process import *
+from odmax import consts
+from odmax import io
+from odmax import process
