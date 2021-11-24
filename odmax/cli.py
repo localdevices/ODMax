@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os.path
 import sys
 import numpy as np
 import odmax
@@ -29,6 +30,9 @@ def main():
     if options.reproject:
         print(f"Reprojection mode:   {options.mode}")
         print(f"Face width:          {options.face_w}")
+    if not(os.path.isdir(options.outpath)):
+        print(f"Output path {options.outpath} does not exist, creating path...")
+        os.makedirs(options.outpath)
     print(f"======================")
     print(f"Start processing:")
     print(f"======================")
@@ -67,14 +71,14 @@ def create_parser():
         "--infile",
         dest="infile",
         nargs=1,
-        help='Input video file, compatible with OpenCV2'
+        help='Input video file, compatible with OpenCV2. Place path between " " to ensure spaces are interpreted correctly.'
     )
     parser.add_option(
         "-o",
         "--outpath",
         dest="outpath",
         nargs=1,
-        help='Directory to write output files.',
+        help='Directory to write output files. Place path between " " to ensure spaces are interpreted correctly.',
         default=".",
     )
     parser.add_option(
