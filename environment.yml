@@ -1,4 +1,4 @@
-name: odmax
+name: cli.py
 
 channels:
   - conda-forge
@@ -11,4 +11,4 @@ dependencies:
   - jupyter
   - pip:
     - PyExifTool
-
+    - py360convert

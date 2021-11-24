@@ -33,19 +33,22 @@ setup(
         "dev": ["pytest", "pytest-cov"],
         "optional": [],
     },
-    scripts=["scripts/odmax"],
-    entry_points="""
-    """,
+    entry_points={
+        "console_scripts": [
+            "odmax=odmax.cli:main"
+        ]
+    },
     include_package_data=True,
     license="AGPLv3",
     zip_safe=False,
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
+        "Intended Audience :: Education",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Photogrammetry",
-        "License :: AGPLv3",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
