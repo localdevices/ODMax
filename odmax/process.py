@@ -5,6 +5,7 @@ import py360convert
 def reproject_cube(img, **kwargs):
     """
     Reprojects image to a cube projection
+
     :param img: ndarray with dimensions [H, W, 3] containing image
     :param face_w: int defining the length of each face of the cube (default: 256)
     :param mode: str defining the reprojection mode, can be 'bilinear' or 'nearest'

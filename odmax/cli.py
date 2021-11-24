@@ -7,6 +7,12 @@ from optparse import OptionParser
 
 
 def main():
+    """
+    odmax can be called from command-line. Please type `odmax` without input arguments or `odmax --help` for command-line
+    arguments
+
+    :return:
+    """
     parser = create_parser()
     (options, args) = parser.parse_args()
     # assertions below
@@ -166,3 +172,4 @@ def create_parser():
 
 if __name__ == '__main__':
     main()
+    parser = create_parser()

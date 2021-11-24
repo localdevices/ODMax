@@ -57,6 +57,10 @@ This will provide an overview of the most up-to-date command line options.
 Alternatively, use our jupyter notebook examples to see common use cases on command-line as
 well as directly in the API.
 
+Acknowledgement
+---------------
+The development of ODMax has been funded by the Australian National University - Research School of Biology
+
 Project organisation
 --------------------
 
