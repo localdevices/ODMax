@@ -117,7 +117,7 @@ def create_parser():
         dest="d_frame",
         nargs=1,
         type="int",
-        help="Interval between frames (default: 1, integer)",
+        help="Frame step size. 1 means all frames between start and end time are processed, 2 means every second frame is processed, etc. (default: 1, integer)",
         default=1,
     )
     parser.add_option(
