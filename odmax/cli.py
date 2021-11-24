@@ -51,7 +51,8 @@ def main():
             img = odmax.process.reproject_cube(
                 img,
                 face_w=options.face_w,
-                mode=options.mode
+                mode=options.mode,
+                overlap=options.overlap
             )
         # TODO: time stamp img
         # write file or files in case of cube
@@ -147,6 +148,14 @@ def create_parser():
         nargs=1,
         help='Mode of reprojection interpolation, can be "bilinear" or "nearest" (default: "bilinear"). Only used in combination with --reproject.',
         default="bilinear"
+    )
+    parser.add_option(
+        "--overlap",
+        dest="overlap",
+        nargs=1,
+        type="float",
+        help='Overlap in cube faces in ratio of face length without overlap. (default: 0.1). This setting ensures that each face shares part of its objective with its neighbouring faces. Only used in combination with --reproject.',
+        default=0.1
     )
     if len(sys.argv[1:]) == 0:
         print("No arguments supplied")
