@@ -3,5 +3,5 @@ sphinxcontrib-programoutput
 sphinx-rtd-theme
 opencv-python-headless
 PyExifTool
-py360convert
+git+https://github.com/localdevices/py360convert.git
 git+https://github.com/localdevices/ODMax.git

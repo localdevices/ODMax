@@ -24,9 +24,11 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "pip",
+        "numpy",
         "opencv-python-headless",
         "PyExifTool",
-        "py360convert==0.1.0"
+        "git+https://github.com/localdevices/py360convert.git",
+        # "py360convert==0.1.0"
 
     ],
     extras_require={

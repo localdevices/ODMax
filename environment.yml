@@ -1,4 +1,4 @@
-name: cli.py
+name: odmax
 
 channels:
   - conda-forge
@@ -8,7 +8,8 @@ dependencies:
   - pip
   - python=3.8
   - matplotlib
+  - cartopy
   - jupyter
   - pip:
     - PyExifTool
-    - py360convert
+    - git+https://github.com/localdevices/py360convert.git
