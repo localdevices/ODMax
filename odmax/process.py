@@ -12,4 +12,8 @@ def reproject_cube(img, **kwargs):
     :return: list of ndarrays in shape of [H, W, 3] containing images of cube faces
     """
     assert (isinstance(img, np.ndarray)), "provided img is not a numpy array"
+    if "face_w" in kwargs:
+        if kwargs["face_w"] is None:
+            face_w = int(img.shape[1]/4)  # a quarter of the width of the still
+            kwargs["face_w"] = face_w
     return py360convert.e2c(img, cube_format="list", **kwargs)
