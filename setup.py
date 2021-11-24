@@ -27,7 +27,7 @@ setup(
         "numpy",
         "opencv-python-headless",
         "PyExifTool",
-        "git+https://github.com/localdevices/py360convert.git",
+        "py360convert @ git+https://github.com/localdevices/py360convert.git",
         # "py360convert==0.1.0"
 
     ],
