@@ -19,7 +19,6 @@ def reproject_cube(img, **kwargs):
         face_w_no_overlap = int(img.shape[1]/4)  # a quarter of the width of the still
         face_w = int(face_w_no_overlap * (1 + 2 * kwargs["overlap"]))  # add twice the overlap to the face width
         kwargs["face_w"] = face_w
-    print(kwargs)
     faces = py360convert.e2c(img, cube_format="list", **kwargs)
     # rearrange coordinates of faces to ensure we look from the inside to the faces
     faces[1] = np.fliplr(faces[1])  # right face is mirrored left-right
