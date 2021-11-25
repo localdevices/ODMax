@@ -25,8 +25,8 @@ dst_dir = "."
 if not(os.path.isdir(dst_dir)):
     os.makedirs(dst_dir)
 
-for fn in glob.glob(os.path.join(src_dir, "*.ipynb")):
-    shutil.copy(fn, dst_dir)
+# copy relevant notebooks
+shutil.copy(os.path.join(src_dir, "reprojection.ipynb"), dst_dir)
 
 # also copy the README of the notebook folder
 shutil.copy(os.path.join(src_dir, "README.rst"), dst_dir)
