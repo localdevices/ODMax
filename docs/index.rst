@@ -19,19 +19,20 @@ tool is development of 3D point clouds and meshes in software such as OpenDroneM
 .. note::
    Acknowledgement: the development of ODMax has been funded by the Australian National University - Research School of Biology
 
+* :doc:`intro`
+* :doc:`installation`
+* :doc:`cli`
+* :doc:`notebooks`
+* :doc:`api/index`
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+   :hidden:
    :caption: Contents:
 
-   Introduction <intro>
-   Installation <installation>
-   Command line use <cli>
-   API reference <api/index>
+   intro
+   installation
+   cli
+   notebooks
+   api/index
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

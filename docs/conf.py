@@ -10,16 +10,27 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import shutil
 import os
+import glob
 import sys
-# sys.path.insert(0, os.path.abspath('.'))
-here = os.path.dirname(__file__)
-sys.path.insert(0, os.path.abspath(os.path.join(here, "..")))
-sys.path.insert(0, os.path.abspath(os.path.join(here, "../odmax")))
-sys.path.insert(0, os.path.abspath(os.path.join(here, "../scripts")))
-
 import odmax
-import scripts
+
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('..'))
+
+# copy notebooks to inside this
+src_dir = "../notebooks"
+dst_dir = "."
+if not(os.path.isdir(dst_dir)):
+    os.makedirs(dst_dir)
+
+for fn in glob.glob(os.path.join(src_dir, "*.ipynb")):
+    shutil.copy(fn, dst_dir)
+
+# also copy the README of the notebook folder
+shutil.copy(os.path.join(src_dir, "README.rst"), dst_dir)
+
 
 # -- Project information -----------------------------------------------------
 
@@ -39,9 +50,17 @@ release = '0.1.0'
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.todo",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.autosummary",
+    "IPython.sphinxext.ipython_directive",
+    "IPython.sphinxext.ipython_console_highlighting",
+    "nbsphinx",
     "sphinxcontrib.programoutput",
 ]
 
+autosummary_generate = True
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -50,7 +69,8 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-
+source_suffix = ".rst"
+master_doc = "index"
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -58,8 +78,9 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 # html_theme = 'alabaster'
 html_theme = "sphinx_rtd_theme"
-
+autoclass_content = "both"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+print(sys.path)

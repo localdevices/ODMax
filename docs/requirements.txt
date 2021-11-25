@@ -1,6 +1,7 @@
 sphinx
 sphinxcontrib-programoutput
 sphinx-rtd-theme
+nbsphinx
 opencv-python-headless
 PyExifTool
 git+https://github.com/localdevices/py360convert.git
