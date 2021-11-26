@@ -27,4 +27,3 @@ Finally go to the notebook folder and start your own jupyter notebook server
 .. toctree::
    :maxdepth: 1
 
-   Working with the cube projection <reprojection>
