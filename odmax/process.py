@@ -4,7 +4,7 @@ import py360convert
 # processing functions for ODMax
 def reproject_cube(img, **kwargs):
     """
-    Reprojects image to a cube projection
+    Reprojects image to a cube projection.
 
     :param img: ndarray with dimensions [H, W, 3] containing image
     :param face_w: int defining the length of each face of the cube (default: 256)
