@@ -1,6 +1,4 @@
-sphinx
 sphinxcontrib-programoutput
-sphinx-rtd-theme
 ipykernel
 nbsphinx
 opencv-python-headless
