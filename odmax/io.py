@@ -6,7 +6,8 @@ from datetime import datetime
 
 def open_file(fn):
     """
-    Open file for reading by cv2
+    Open file for reading by cv2.
+
     :param fn: video file (cv2 compatible)
     :return: cv2 pointer to file
     """
@@ -23,7 +24,8 @@ def open_file(fn):
 
 def get_frame_number(f, time):
     """
-    Get the frame number belonging to the defined time in seconds
+    Get the frame number belonging to the defined time in seconds.
+
     :param f: pointer to opened video file
     :param time: seconds from start of video
     :return:
@@ -34,7 +36,8 @@ def get_frame_number(f, time):
 
 def read_frame(f, n):
     """
-    Reads frame number n from opened video file f
+    Reads frame number n from opened video file f.
+
     :param f: pointer to opened video file
     :param n: frame number
     :return: img, blob containing frame
@@ -56,7 +59,8 @@ def read_frame(f, n):
 def write_frame(img, path=".", prefix="still", encoder="jpg"):
     """
     Writes a frame to a file. If a 6-face cube list is provided, 6 files will be written using
-    "F", "R", "B", "L", "U", "D" as suffixes for "front", "right", "back", "left", "up" and "down"
+    "F", "R", "B", "L", "U", "D" as suffixes for "front", "right", "back", "left", "up" and "down".
+
     :param img: ndarray or list of 6 ndarrays of size [H, W, 3]
     :param path: path to write frame to
     :param prefix: prefix of file to write to
@@ -77,7 +81,8 @@ def write_frame(img, path=".", prefix="still", encoder="jpg"):
 
 def get_exif(fn, fn_out):
     """
-    Reads the exif tag from a video and writes it to a file
+    Reads the exif tag from a video and writes it to a file.
+
     :param fn: video filename
     :param fn_out: text file to write exif tag to
     :return:
@@ -92,7 +97,8 @@ def get_exif(fn, fn_out):
 
 def get_gpx(fn, fn_out):
     """
-    Reads the gpx track from a video and writes it to a file
+    Reads the gpx track from a video and writes it to a file.
+
     :param fn: video filename
     :param fn_out: text file to write exif tag to
     :return:
@@ -109,7 +115,8 @@ def get_gpx(fn, fn_out):
 
 def timestamp(fn, t):
     """
-    time stamps an existing file containing a still image
+    time stamps an existing file containing a still image.
+
     :param fn: existing file with still image
     :param t: datetime object, to write to still image's exif tag
     :return:

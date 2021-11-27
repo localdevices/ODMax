@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os.path
 import sys
 import numpy as np
 import odmax
@@ -6,6 +7,12 @@ from optparse import OptionParser
 
 
 def main():
+    """
+    odmax can be called from command-line. Please type `odmax` without input arguments or `odmax --help` for command-line
+    arguments
+
+    :return:
+    """
     parser = create_parser()
     (options, args) = parser.parse_args()
     # assertions below
@@ -28,7 +35,10 @@ def main():
     print(f"Reprojection      : {'enabled' if options.reproject else 'disabled'}")
     if options.reproject:
         print(f"Reprojection mode:   {options.mode}")
-        print(f"Face width:          {options.face_w}")
+        print(f"Face width:          {options.face_w if options.face_w is not None else 'not set, estimated from video'}")
+    if not(os.path.isdir(options.outpath)):
+        print(f"Output path {options.outpath} does not exist, creating path...")
+        os.makedirs(options.outpath)
     print(f"======================")
     print(f"Start processing:")
     print(f"======================")
@@ -47,7 +57,8 @@ def main():
             img = odmax.process.reproject_cube(
                 img,
                 face_w=options.face_w,
-                mode=options.mode
+                mode=options.mode,
+                overlap=options.overlap
             )
         # TODO: time stamp img
         # write file or files in case of cube
@@ -67,14 +78,14 @@ def create_parser():
         "--infile",
         dest="infile",
         nargs=1,
-        help='Input video file, compatible with OpenCV2'
+        help='Input video file, compatible with OpenCV2. Place path between " " to ensure spaces are interpreted correctly.'
     )
     parser.add_option(
         "-o",
         "--outpath",
         dest="outpath",
         nargs=1,
-        help='Directory to write output files.',
+        help='Directory to write output files (default: "."). Place path between " " to ensure spaces are interpreted correctly.',
         default=".",
     )
     parser.add_option(
@@ -82,7 +93,7 @@ def create_parser():
         "--prefix",
         dest="prefix",
         nargs=1,
-        help='Prefix to use for written image files',
+        help='Prefix to use for written image files (default: "still").',
         default="still"
     )
     parser.add_option(
@@ -90,7 +101,7 @@ def create_parser():
         "--encoder",
         dest="encoder",
         nargs=1,
-        help='encoder to use to write stills (default: jpg). Can be "jpg", "bmp", "jp2", "png" or "webp"',
+        help='encoder to use to write stills (default: jpg). Can be "jpg", "bmp", "jp2", "png" or "webp".',
         default="jpg"
     )
     parser.add_option(
@@ -99,7 +110,7 @@ def create_parser():
         dest="start_time",
         nargs=1,
         type="float",
-        help='Start time in seconds from start of movie',
+        help='Start time in seconds from start of movie (default: 0.0).',
         default=0.
     )
     parser.add_option(
@@ -108,7 +119,7 @@ def create_parser():
         dest="end_time",
         nargs=1,
         type="float",
-        help='End time in seconds from start of movie',
+        help='End time in seconds from start of movie (default: end of movie).',
         default=-1.
     )
     parser.add_option(
@@ -117,7 +128,7 @@ def create_parser():
         dest="d_frame",
         nargs=1,
         type="int",
-        help="Interval between frames (default: 1, integer)",
+        help="Frame step size (default: 1, integer). 1 means all frames between start and end time are processed, 2 means every second frame is processed, etc.",
         default=1,
     )
     parser.add_option(
@@ -125,7 +136,7 @@ def create_parser():
         "--reproject",
         dest="reproject",
         action="store_true",
-        help='Reproject 360 degree stills to cube with 6 faces',
+        help='Reproject 360 degree stills to cube with 6 faces (default: not set, i.e. no reprojection is performed).',
         default=False,
     )
     parser.add_option(
@@ -134,16 +145,23 @@ def create_parser():
         dest="face_w",
         nargs=1,
         type="int",
-        help='Length of faces of reprojected cube in pixels (default: 256). Only used in combination with --reproject',
-        default=256
+        help='Length of faces of reprojected cube in pixels (default: not set, the optimal resolution will be estimated from the video file). Only used in combination with --reproject.',
     )
     parser.add_option(
         "-m",
         "--mode",
         dest="mode",
         nargs=1,
-        help='Mode of reprojection interpolation, can be "bilinear" or "nearest" (default: "nearest"). Only used in combination with --reproject, default: "bilinear"',
+        help='Mode of reprojection interpolation, can be "bilinear" or "nearest" (default: "bilinear"). Only used in combination with --reproject.',
         default="bilinear"
+    )
+    parser.add_option(
+        "--overlap",
+        dest="overlap",
+        nargs=1,
+        type="float",
+        help='Overlap in cube faces in ratio of face length without overlap. (default: 0.1). This setting ensures that each face shares part of its objective with its neighbouring faces. Only used in combination with --reproject.',
+        default=0.1
     )
     if len(sys.argv[1:]) == 0:
         print("No arguments supplied")
@@ -154,3 +172,4 @@ def create_parser():
 
 if __name__ == '__main__':
     main()
+    parser = create_parser()
