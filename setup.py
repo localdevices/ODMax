@@ -11,8 +11,10 @@ with open("README.md") as readme_file:
 
 setup(
     name="odmax",
+    version="0.1.0",
     description="odmax extracts still images from GoPro 360 camera types, including GNSS location and time information",
     long_description=readme + "\n\n",
+    long_description_content_type="text/markdown",
     url="https://github.com/localdevices/ODMax",
     author="Hessel Winsemius and Stephen Mather",
     author_email="info@rainbowsensing.com",
@@ -28,8 +30,6 @@ setup(
         "opencv-python-headless",
         "PyExifTool",
         "py360convert @ git+https://github.com/localdevices/py360convert.git",
-        # "py360convert==0.1.0"
-
     ],
     extras_require={
         "dev": ["pytest", "pytest-cov"],
