@@ -17,7 +17,7 @@ def open_file(fn):
         # try to open file with openCV
         f = cv2.VideoCapture(fn)
         if not(f.isOpened()):
-            raise(f"Could not recognise file {f} as a proper video file")
+            raise(f"Could not recognise file {fn} as a proper video file")
         return f
     else:
         raise TypeError(f"{fn} should be a string pointing to a path")
