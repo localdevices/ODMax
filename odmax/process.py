@@ -15,7 +15,6 @@ def reproject_cube(img, **kwargs):
     assert (isinstance(img, np.ndarray)), "provided img is not a numpy array"
     if not "overlap" in kwargs:
         kwargs["overlap"] = 0.1  # always default to 0.1
-    print(kwargs)
     if kwargs["face_w"] is None:
         # if kwargs["face_w"] is None:
         face_w_no_overlap = int(img.shape[1]/4)  # a quarter of the width of the still
