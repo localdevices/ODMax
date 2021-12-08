@@ -1,29 +1,33 @@
 ODMax
 =====
 
-ODMax is a utility to extract still frames from 360-degree videos. At this moment ODMax works with GoPro videos. It may or may not work with other 360 degree camera brands and models but this has not been tested.
+**ODMax** is a utility to extract still frames from 360-degree videos. At this moment **ODMax** works with GoPro videos. It may or may not work with other 360 degree camera brands and models but this has not been tested.
 
-To get started with ODMax, set-up a python environment. We recommend using a miniconda or anaconda environment. We have conveniently packaged all dependencies for you, and with `conda` these can be installed easily.
+To get started with **ODMax**, set-up a python environment. We recommend using a Miniconda or Anaconda environment. We have conveniently packaged all dependencies for you, and with `conda` these can be installed easily.
+
+> **_note:_**  For instructions how to get Anaconda (with lots of pre-installed libraries) or Miniconda (light weight) installed, please go to https://docs.conda.io/projects/conda/en/latest/
+
+> **_manual:_** A full manual with examples can be found on https://odmax.readthedocs.io/
 
 Installation
 ------------
 
 ### Installation for direct use
 
-If you simply want to add ODMax to an existing python installation or virtual environment, then follow these instructions.
+If you simply want to add **ODMax** to an existing python installation or virtual environment, then follow these instructions.
 
-First activate the environment you want ODMax to be installed in (if you don't care about virtual environments, then simply skip this step)
+First activate the environment you want **ODMax** to be installed in (if you don't care about virtual environments, then simply skip this step)
 
-Then install ODMax as follows:
+Then install **ODMax** as follows:
 ```
-pip install git+https://github.com/localdevices/ODMax.git
-
+pip install odmax
 ```
 That's it! You are good to go!
 
 ### Installation from code base
 
-To install ODMax from scratch in a new virtual environment go through these steps:
+To install **ODMax** from scratch in a new virtual environment for having the latest code changes or for development,
+go through these steps:
 
 First, clone the code with `git`
 
@@ -31,17 +35,17 @@ First, clone the code with `git`
 git clone https://github.com/localdevices/ODMax.git
 ```
 
-Setup a virtual environment as follows
+If you want, setup a virtual environment as follows:
 ```
 cd ODMax
 conda env create -f environment.yml
 ```
 
-Now install the ODMax package. If you want to develop ODMax please type
+Now install the **ODMax** package. If you want to develop **ODMax** please type
 ```
 pip install -e .
 ```
-If you just want to use ODMax type:
+If you just want to use **ODMax** (without the option to develop on the code) type:
 ```
 pip install .
 ```
@@ -49,7 +53,7 @@ That's it, you are good to go.
 
 Using ODMax
 -----------
-To use ODMax, go to a command line and type 
+To use **ODMax**, go to a command line and type 
 ```
 odmax --help
 ```
@@ -59,7 +63,7 @@ well as directly in the API.
 
 Acknowledgement
 ---------------
-The development of ODMax has been funded by the Australian National University - Research School of Biology
+The development of ODMax has been funded by the Australian National University - Research School of Biology.
 
 Project organisation
 --------------------
@@ -69,9 +73,12 @@ Project organisation
     ├── LICENSE
     ├── setup.py            <- setup script compatible with pip
     ├── environment.yml     <- YML-file for setting up a conda environment with dependencies
-    ├── notebooks           <- Jupyter notebooks with examples
-    ├── odmax               <- odmax library
-        ├── ...             <- odmax functions
-    ├── scripts             <- Contains the odmax executable for use on command-line
-        ├── odmax           <- Command-line utility for ODMax
+    ├── docs                <- Sphinx documentation source code
+        ├── ...             <- Sphinx source code files
+    ├── examples            <- Small example files used in notebooks
+        ├── ...             <- individual .jpg and .mp4 files
+    ├── notebooks           <- Jupyter notebooks with examples how to use the API
+        ├── ...             <- individual Jupyter notebooks
+    ├── odmax               <- odmax library and CLI
+        ├── ...             <- odmax functions and CLI main function .py files
 
