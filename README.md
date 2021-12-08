@@ -51,6 +51,15 @@ pip install .
 ```
 That's it, you are good to go.
 
+### Installation of exiftool for metadata extraction
+
+Especially for photogrammetry or 360 streetview applications, it is essential to have time stamps and geographical
+coordinates embedded in the extracted stills. ODMax automatically extracts such information from 360-video files if
+these are recorded by the device used. In order to do this, ODMax requires ``exiftool`` to be installed and available on
+the path. To install ``exiftool`` in Windows, please follow the download and installation instructions for Windows on
+https://exiftool.org/install.html. For Linux, you can also follow the download and installation instructions, or simply
+acquire a stable version from the package manager of your installed distribution. 
+
 Using ODMax
 -----------
 To use **ODMax**, go to a command line and type 
