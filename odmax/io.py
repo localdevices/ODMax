@@ -3,6 +3,11 @@ import os.path
 import cv2
 from odmax import consts
 from datetime import datetime
+from subprocess import Popen, PIPE
+import gpxpy
+
+PATH = os.path.dirname(__file__)
+gpx_fmt_fn = os.path.join(PATH, "gpx.fmt")
 
 def open_file(fn):
     """
@@ -95,22 +100,18 @@ def get_exif(fn, fn_out):
     raise NotImplementedError("Not implemented yet")
 
 
-def get_gpx(fn, fn_out):
+def get_gpx(fn):
     """
     Reads the gpx track from a video and writes it to a file.
 
     :param fn: video filename
-    :param fn_out: text file to write exif tag to
-    :return:
+    :return: parsed gpx data
     """
     if not(os.path.isfile(fn)):
         raise IOError(f"File {fn} does not exist")
-    if not(os.path.isdir(os.path.split(fn_out)[0])):
-        raise IOError(f"Path {os.path.split(fn_out)[0]} is not available")
-    # TODO: return if GPX info is not found
-
-    # FIXME: complete this code
-    raise NotImplementedError("Not implemented yet")
+    process = Popen(['exiftool', '-ee', '-p', f"{gpx_fmt_fn}", fn], stdout=PIPE, stderr=PIPE)
+    stdout, stderr = process.communicate()
+    return gpxpy.parse(stdout.decode())
 
 
 def timestamp(fn, t):

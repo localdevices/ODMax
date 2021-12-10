@@ -43,6 +43,7 @@ def main():
         os.makedirs(options.outpath)
     if exif:
         print(f"exiftool          : found! Processing with GPS coordinates if available")
+        import exiftool
     else:
         print(f"exiftool          : NOT found. Processing WITHOUT GPS coordinates. Install exiftool if you wish to process with coordinates.")
 
@@ -54,6 +55,10 @@ def main():
     start_frame = odmax.io.get_frame_number(f, options.start_time)
     end_frame = odmax.io.get_frame_number(f, options.end_time)
     # TODO: extract metadata
+    if exif:
+        gps = odmax.io.get_gpx(options.infile)
+        print(gps)
+        print("Not done yet") ## TODO: finalize
     frame_n = list(range(start_frame, end_frame, options.d_frame))
     for n in frame_n:
         # extract frame
@@ -67,15 +72,18 @@ def main():
                 mode=options.mode,
                 overlap=options.overlap
             )
-        # TODO: time stamp img
-        # write file or files in case of cube
         odmax.io.write_frame(
             img,
             path=options.outpath,
             prefix="{:s}_{:04d}".format(options.prefix, n),
             encoder=options.encoder
         )
-    print("")
+        if exif:
+            print("Finish this")  # TODO: im,plement time and GPS stamping
+
+
+        # TODO: time stamp img
+        # write file or files in case of cube
 
 
 def create_parser():
