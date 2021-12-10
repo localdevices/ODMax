@@ -29,6 +29,7 @@ setup(
         "numpy",
         "opencv-python-headless",
         "PyExifTool",
+        "gpxpy",
         "py360convert @ git+https://github.com/localdevices/py360convert.git",
     ],
     extras_require={
