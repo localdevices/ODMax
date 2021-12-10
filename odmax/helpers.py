@@ -1,4 +1,5 @@
 import shutil
+from subprocess import Popen, PIPE
 
 def assert_cli_exe(cmd):
     """
@@ -8,3 +9,10 @@ def assert_cli_exe(cmd):
     :return: True if command exists, false if not
     """
     return shutil.which(cmd) is not None
+
+def exiftool(*args):
+    process = Popen(['exiftool'] + list(args), stdout=PIPE, stderr=PIPE)
+    stdout, stderr = process.communicate()
+    if stderr:
+        print(f"WARNING: exceptions found during processing: {stderr.decode()}")
+    return stdout.decode()

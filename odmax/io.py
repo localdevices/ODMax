@@ -1,9 +1,8 @@
 # I/O functionality for ODMax
 import os.path
 import cv2
-from odmax import consts
+from odmax import consts, helpers
 from datetime import datetime
-from subprocess import Popen, PIPE
 import gpxpy
 
 PATH = os.path.dirname(__file__)
@@ -109,9 +108,10 @@ def get_gpx(fn):
     """
     if not(os.path.isfile(fn)):
         raise IOError(f"File {fn} does not exist")
-    process = Popen(['exiftool', '-ee', '-p', f"{gpx_fmt_fn}", fn], stdout=PIPE, stderr=PIPE)
-    stdout, stderr = process.communicate()
-    return gpxpy.parse(stdout.decode())
+
+    # process = Popen(['exiftool', '-ee', '-p', f"{gpx_fmt_fn}", fn], stdout=PIPE, stderr=PIPE)
+    # stdout, stderr = process.communicate()
+    return gpxpy.parse(helpers.exiftool('-ee', '-p', f"{gpx_fmt_fn}", fn))
 
 
 def timestamp(fn, t):
