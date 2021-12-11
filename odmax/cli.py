@@ -44,7 +44,7 @@ def main():
         os.makedirs(options.outpath)
     if exif:
         print(f"exiftool          : found! Processing with GPS coordinates if available")
-        import exiftool
+        # import exiftool
     else:
         print(f"exiftool          : NOT found. Processing WITHOUT GPS coordinates. Install exiftool if you wish to process with coordinates.")
 
@@ -57,12 +57,14 @@ def main():
     end_frame = odmax.io.get_frame_number(f, options.end_time)
     fps = f.get(cv2.CAP_PROP_FPS)
     print(f"Processing from frame {start_frame} until frame {end_frame} on FPS {fps}")
-    # TODO: extract metadata
     if exif:
         gpx = odmax.io.get_gpx(options.infile)
-        print(gpx)
+        # write to file
+        fn_gpx = os.path.join(options.outpath, "track.gpx")
+        xml = gpx.to_xml()
+        with open(fn_gpx, "w") as f:
+            f.write(xml)
         point = odmax.helpers.gpx_find_first_timestamp(gpx)
-        print(point)
         if point.time is None:
             print(f"Warning: No time information found in {options.infile}. Skipping GPS parsing.")
             # set exif processing to False because we can't parse coordinates without any time info
@@ -83,10 +85,8 @@ def main():
     if exif:
         # prepare all info for exiftool time stamping
         frame_datetime = [start_datetime + timedelta(seconds=t) for t in frame_t]
-        frame_datetimestr = [dt.strftime("%Y-%m-%d %H:%M:%SZ") for dt in frame_datetime]
-        frame_subsectimestr = [dt.strftime("%f")[0:-3] for dt in frame_datetime]
 
-    for n in frame_n:
+    for n, t in zip(frame_n, frame_datetime):
         # extract frame
         print("Processing frame {:05d}".format(n))
         img = odmax.io.read_frame(f, n)
@@ -98,13 +98,19 @@ def main():
                 mode=options.mode,
                 overlap=options.overlap
             )
-        odmax.io.write_frame(
+        fn_imgs = odmax.io.write_frame(
             img,
             path=options.outpath,
             prefix="{:s}_{:04d}".format(options.prefix, n),
             encoder=options.encoder
         )
         if exif:
+            if not(isinstance(fn_imgs, list)):
+                fn_imgs = [fn_imgs]
+            for fn_img in fn_imgs:
+                # time stamp image(s)
+                odmax.io.timestamp(fn_img, t)
+                res = odmax.io.geostamp(fn_img, fn_gpx)
             print("Finish this")  # TODO: implement time and GPS stamping, using frame_datetimestr and frame_subsectimestr, and helpers.exiftool
 
 

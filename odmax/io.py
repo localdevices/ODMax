@@ -4,6 +4,7 @@ import cv2
 from odmax import consts, helpers
 from datetime import datetime
 import gpxpy
+import exiftool
 
 PATH = os.path.dirname(__file__)
 gpx_fmt_fn = os.path.join(PATH, "gpx.fmt")
@@ -73,15 +74,18 @@ def write_frame(img, path=".", prefix="still", encoder="jpg"):
     if isinstance(img, list):
         # a 6-face cube is provided, write 6 individual images
         assert (len(img)==6), f"6 images are expected with cube reprojection, but {len(img)} were found"
+        fns = []
         for i, c in zip(img, consts.CUBE_SUFFIX):
             assert ((len(i.shape) == 3) and (i.shape[-1] >= 3)), "One of the images you provided is incorrectly shaped, must be 3 dimensional with the last dimension as RGB"
             fn_out = os.path.join(path, "{:s}_{:s}.{:s}").format(prefix, c, encoder.lower())
             cv2.imwrite(fn_out, i)
+            fns.append(fn_out)
+        return fns
     else:
         # a single image is provided
         fn_out = os.path.join(path, "{:s}.{:s}").format(prefix, encoder.lower())
         cv2.imwrite(fn_out, img)
-
+        return fn_out
 
 def get_exif(fn, fn_out):
     """
@@ -108,9 +112,6 @@ def get_gpx(fn):
     """
     if not(os.path.isfile(fn)):
         raise IOError(f"File {fn} does not exist")
-
-    # process = Popen(['exiftool', '-ee', '-p', f"{gpx_fmt_fn}", fn], stdout=PIPE, stderr=PIPE)
-    # stdout, stderr = process.communicate()
     return gpxpy.parse(helpers.exiftool('-ee', '-p', f"{gpx_fmt_fn}", fn))
 
 
@@ -122,8 +123,33 @@ def timestamp(fn, t):
     :param t: datetime object, to write to still image's exif tag
     :return:
     """
-    if not(os.path.isfile(fn)):
-        raise IOError(f"File {fn} does not exist")
     assert(isinstance(t, datetime)), f"{t} is not a datetime object"
-    # FIXME: complete this code
-    raise NotImplementedError("Not implemented yet")
+    if not (os.path.isfile(fn)):
+        raise IOError(f"File {fn} does not exist")
+    datetimestr = t.strftime("%Y-%m-%d %H:%M:%SZ")
+    subsectimestr = t.strftime("%f")[0:-3]
+    subsecdatetimestr = t.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + "Z"
+    exif_args = (f'-DateTimeOriginal="{datetimestr}"'.encode(),
+                 f'-SubSecTimeOriginal="{subsectimestr}"'.encode(),
+                 f'-SubSecDateTimeOriginal="{subsecdatetimestr}"'.encode(),
+                 '-overwrite_original'.encode(),
+                 fn.encode()
+                 )
+    # perform exif actions
+    with exiftool.ExifTool() as et:
+        et.execute(*exif_args)
+
+def geostamp(fn_img, fn_gpx):
+    if not (os.path.isfile(fn_img)):
+        raise IOError(f"File {fn_img} does not exist")
+    if not (os.path.isfile(fn_gpx)):
+        raise IOError(f"File {fn_gpx} does not exist")
+    exif_args = (
+        "-Geotag".decode(),
+        fn_gpx.decode(),
+        '"-Geotime<SubSecDateTimeOriginal"'.decode(),
+        fn_img.decode()
+    )
+    with exiftool.ExifTool() as et:
+        res = et.execute(*exif_args)
+    return res
