@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 import os.path
 import sys
+import cv2
 import numpy as np
 import odmax
+from odmax.helpers import assert_cli_exe
 from optparse import OptionParser
-
+from datetime import datetime, timedelta
 
 def main():
     """
@@ -24,6 +26,7 @@ def main():
         raise ValueError(f"End time {options.end_time} is smaller or equal than start time {options.start_time}")
     if options.d_frame < 1:
         raise ValueError(f"Frame difference {options.d_frame} is smaller than one, has to be at least one")
+    exif = assert_cli_exe("exiftool")
     # do something
     print(f"Processing video  : {options.infile}")
     print(f"Output path       : {options.outpath}")
@@ -34,11 +37,17 @@ def main():
     print(f"Frame interval    : {options.d_frame}")
     print(f"Reprojection      : {'enabled' if options.reproject else 'disabled'}")
     if options.reproject:
-        print(f"Reprojection mode:   {options.mode}")
-        print(f"Face width:          {options.face_w if options.face_w is not None else 'not set, estimated from video'}")
+        print(f"Reprojection mode : {options.mode}")
+        print(f"Face width        : {options.face_w if options.face_w is not None else 'not set, estimated from video'}")
     if not(os.path.isdir(options.outpath)):
         print(f"Output path {options.outpath} does not exist, creating path...")
         os.makedirs(options.outpath)
+    if exif:
+        print(f"exiftool          : found! Processing with GPS coordinates if available")
+        import exiftool
+    else:
+        print(f"exiftool          : NOT found. Processing WITHOUT GPS coordinates. Install exiftool if you wish to process with coordinates.")
+
     print(f"======================")
     print(f"Start processing:")
     print(f"======================")
@@ -46,8 +55,37 @@ def main():
     # get start and end frame
     start_frame = odmax.io.get_frame_number(f, options.start_time)
     end_frame = odmax.io.get_frame_number(f, options.end_time)
+    fps = f.get(cv2.CAP_PROP_FPS)
+    print(f"Processing from frame {start_frame} until frame {end_frame} on FPS {fps}")
     # TODO: extract metadata
+    if exif:
+        gpx = odmax.io.get_gpx(options.infile)
+        print(gpx)
+        point = odmax.helpers.gpx_find_first_timestamp(gpx)
+        print(point)
+        if point.time is None:
+            print(f"Warning: No time information found in {options.infile}. Skipping GPS parsing.")
+            # set exif processing to False because we can't parse coordinates without any time info
+            exif = False
+        else:
+            print("Found first time stamp on lat: {}, lon: {}, elev: {}, time: {}".format(
+                point.latitude,
+                point.longitude,
+                point.elevation,
+                point.time.strftime("%Y-%m-%dT%H:%M:%S.%f")[0:-3] + "Z"
+            )
+            )
+            start_datetime = point.time
     frame_n = list(range(start_frame, end_frame, options.d_frame))
+    # compute seconds from start
+    frame_t = [frame/fps for frame in frame_n]
+    # compute datetimes
+    if exif:
+        # prepare all info for exiftool time stamping
+        frame_datetime = [start_datetime + timedelta(seconds=t) for t in frame_t]
+        frame_datetimestr = [dt.strftime("%Y-%m-%d %H:%M:%SZ") for dt in frame_datetime]
+        frame_subsectimestr = [dt.strftime("%f")[0:-3] for dt in frame_datetime]
+
     for n in frame_n:
         # extract frame
         print("Processing frame {:05d}".format(n))
@@ -60,15 +98,14 @@ def main():
                 mode=options.mode,
                 overlap=options.overlap
             )
-        # TODO: time stamp img
-        # write file or files in case of cube
         odmax.io.write_frame(
             img,
             path=options.outpath,
             prefix="{:s}_{:04d}".format(options.prefix, n),
             encoder=options.encoder
         )
-    print("")
+        if exif:
+            print("Finish this")  # TODO: implement time and GPS stamping, using frame_datetimestr and frame_subsectimestr, and helpers.exiftool
 
 
 def create_parser():
