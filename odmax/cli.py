@@ -7,6 +7,7 @@ import odmax
 from odmax.helpers import assert_cli_exe
 from optparse import OptionParser
 from datetime import datetime, timedelta
+from tqdm import tqdm
 
 def main():
     """
@@ -62,8 +63,8 @@ def main():
         # write to file
         fn_gpx = os.path.join(options.outpath, "track.gpx")
         xml = gpx.to_xml()
-        with open(fn_gpx, "w") as f:
-            f.write(xml)
+        with open(fn_gpx, "w") as txt:
+            txt.write(xml)
         point = odmax.helpers.gpx_find_first_timestamp(gpx)
         if point.time is None:
             print(f"Warning: No time information found in {options.infile}. Skipping GPS parsing.")
@@ -85,10 +86,18 @@ def main():
     if exif:
         # prepare all info for exiftool time stamping
         frame_datetime = [start_datetime + timedelta(seconds=t) for t in frame_t]
-
-    for n, t in zip(frame_n, frame_datetime):
-        # extract frame
-        print("Processing frame {:05d}".format(n))
+        print(frame_datetime)
+    else:
+        frame_datetime = frame_t
+    print(len(frame_datetime), len(frame_n))
+    work = tqdm(range(len(frame_n)))
+    #
+    # work = tqdm(zip(frame_n, frame_datetime))
+    import time
+    for i in work:
+        n = frame_n[i]
+        t = frame_datetime[i]
+        work.set_description("Processing frame {:05d}".format(n))
         img = odmax.io.read_frame(f, n)
         if options.reproject:
             # reproject img to faces
@@ -111,8 +120,8 @@ def main():
                 # time stamp image(s)
                 odmax.io.timestamp(fn_img, t)
                 res = odmax.io.geostamp(fn_img, fn_gpx)
-            print("Finish this")  # TODO: implement time and GPS stamping, using frame_datetimestr and frame_subsectimestr, and helpers.exiftool
-
+            if res != 0:
+                work.set_description(f"Warning: {fn_img} could not be GPS stamped properly.")
 
 def create_parser():
     parser = OptionParser()

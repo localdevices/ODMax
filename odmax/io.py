@@ -4,7 +4,6 @@ import cv2
 from odmax import consts, helpers
 from datetime import datetime
 import gpxpy
-import exiftool
 
 PATH = os.path.dirname(__file__)
 gpx_fmt_fn = os.path.join(PATH, "gpx.fmt")
@@ -129,15 +128,9 @@ def timestamp(fn, t):
     datetimestr = t.strftime("%Y-%m-%d %H:%M:%SZ")
     subsectimestr = t.strftime("%f")[0:-3]
     subsecdatetimestr = t.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + "Z"
-    exif_args = (f'-DateTimeOriginal="{datetimestr}"'.encode(),
-                 f'-SubSecTimeOriginal="{subsectimestr}"'.encode(),
-                 f'-SubSecDateTimeOriginal="{subsecdatetimestr}"'.encode(),
-                 '-overwrite_original'.encode(),
-                 fn.encode()
-                 )
     # perform exif actions
-    with exiftool.ExifTool() as et:
-        et.execute(*exif_args)
+    cmd = f'exiftool -DateTimeOriginal="{datetimestr}" -SubSecTimeOriginal="{subsectimestr}" -SubSecDateTimeOriginal="{subsecdatetimestr}" -overwrite_original {fn} >/dev/null 2>&1'
+    os.system(cmd)
 
 def geostamp(fn_img, fn_gpx):
     if not (os.path.isfile(fn_img)):
@@ -145,11 +138,11 @@ def geostamp(fn_img, fn_gpx):
     if not (os.path.isfile(fn_gpx)):
         raise IOError(f"File {fn_gpx} does not exist")
     exif_args = (
-        "-Geotag".decode(),
-        fn_gpx.decode(),
-        '"-Geotime<SubSecDateTimeOriginal"'.decode(),
-        fn_img.decode()
+        "-Geotag".encode(),
+        fn_gpx.encode(),
+        '"-Geotime<SubSecDateTimeOriginal"'.encode(),
+        fn_img.encode()
     )
-    with exiftool.ExifTool() as et:
-        res = et.execute(*exif_args)
+    cmd = f'exiftool -Geotag {fn_gpx} "-Geotime<SubSecDateTimeOriginal" {fn_img} >/dev/null 2>&1'
+    res = os.system(cmd)
     return res
