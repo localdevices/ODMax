@@ -143,6 +143,6 @@ def geostamp(fn_img, fn_gpx):
         '"-Geotime<SubSecDateTimeOriginal"'.encode(),
         fn_img.encode()
     )
-    cmd = f'exiftool -Geotag {fn_gpx} "-Geotime<SubSecDateTimeOriginal" {fn_img} >/dev/null 2>&1'
+    cmd = f'exiftool -Geotag {fn_gpx} "-Geotime<SubSecDateTimeOriginal" {fn_img} -overwrite_original >/dev/null 2>&1'
     res = os.system(cmd)
     return res
