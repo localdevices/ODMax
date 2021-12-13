@@ -68,9 +68,14 @@ def main():
         xml = gpx.to_xml()
         with open(fn_gpx, "w") as txt:
             txt.write(xml)
-        point = odmax.helpers.gpx_find_first_timestamp(gpx)
+        try:
+            point = odmax.helpers.gpx_find_first_timestamp(gpx)
+        except:
+            print(f"Warning: No GPS information found in file {options.infile}. Skipping GPS parsing.")
+            exif = False
+    if exif:
         if point.time is None:
-            print(f"Warning: No time information found in {options.infile}. Skipping GPS parsing.")
+            print(f"Warning: No time information found in GPS track of {options.infile}. Skipping GPS parsing.")
             # set exif processing to False because we can't parse coordinates without any time info
             exif = False
         else:
