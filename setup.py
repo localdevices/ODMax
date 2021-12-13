@@ -30,6 +30,7 @@ setup(
         "opencv-python-headless",
         "gpxpy",
         "tqdm",
+        "piexif",
         "py360convert @ git+https://github.com/localdevices/py360convert.git",
     ],
     extras_require={
