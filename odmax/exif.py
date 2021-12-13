@@ -3,10 +3,12 @@ import piexif
 from fractions import Fraction
 
 def to_deg(value, loc):
-    """convert decimal coordinates into degrees, munutes and seconds tuple
+    """
+    Convert decimal coordinates into degrees, munutes and seconds tuple
 
-    Keyword arguments: value is float gps-value, loc is direction list ["S", "N"] or ["W", "E"]
-    return: tuple like (25, 13, 48.343 ,'N')
+    :param value: coordinate value (float)
+    :param loc: direction list, either ["S", "N"] or ["W", "E"]
+    :return: tuple like (25, 13, 48.343 ,'N')
     """
     if value < 0:
         loc_value = loc[0]
@@ -23,7 +25,15 @@ def to_deg(value, loc):
 
 
 def change_to_rational(number):
-    """convert a number to rantional
+    """
+    Convert a number to rational
+
+    :param number: float (abbreviated to e.g. 1 decimal)
+    :return: tuple, (int: numerator, int: denominator)
+    """
+
+
+    """
 
     Keyword arguments: number
     return: tuple like (1, 2), (numerator, denominator)
@@ -39,7 +49,7 @@ def set_gps_location(lat, lng, altitude):
     file_name -- image file
     lat -- latitude (as float)
     lng -- longitude (as float)
-    altitude -- altitude (as float)
+    altitude -- altitude (as float, rounded to 1 decimal)
 
     """
     lat_deg = to_deg(lat, ["S", "N"])
@@ -47,11 +57,11 @@ def set_gps_location(lat, lng, altitude):
 
     exiv_lat = (change_to_rational(lat_deg[0]), change_to_rational(lat_deg[1]), change_to_rational(lat_deg[2]))
     exiv_lng = (change_to_rational(lng_deg[0]), change_to_rational(lng_deg[1]), change_to_rational(lng_deg[2]))
-
+    print(f"ALTITUDE: {round(altitude, 1)} , {change_to_rational(round(altitude,1))}")
     gps_ifd = {
         piexif.GPSIFD.GPSVersionID: (2, 0, 0, 0),
         piexif.GPSIFD.GPSAltitudeRef: 1,
-        piexif.GPSIFD.GPSAltitude: change_to_rational(round(altitude)),
+        piexif.GPSIFD.GPSAltitude: change_to_rational(round(altitude, 1)),
         piexif.GPSIFD.GPSLatitudeRef: lat_deg[3],
         piexif.GPSIFD.GPSLatitude: exiv_lat,
         piexif.GPSIFD.GPSLongitudeRef: lng_deg[3],

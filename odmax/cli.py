@@ -66,8 +66,6 @@ def main():
         gpx = odmax.io.get_gpx(options.infile)
         # make lists of lats, lons and timestamps, for use in interpolation
         lats, lons, elevs, timestamps = odmax.helpers.parse_coords_from_gpx(gpx)
-        print(elevs)
-
         # write to file
         fn_gpx = os.path.join(options.outpath, "track.gpx")
         xml = gpx.to_xml()
@@ -124,22 +122,11 @@ def main():
             )
         if exif:
             # retrieve coordinate
-            print(t.timestamp())
             lat, lon, elev = odmax.helpers.coord_interp(t.timestamp(), timestamps, lats, lons, elevs)
-
-            print(lat, lon, elev)
             gps_exif = odmax.exif.set_gps_location(lat, lon, elev)
             exif_dict = {
                 "GPS": gps_exif
             }
-            # if not(isinstance(fn_imgs, list)):
-            #     fn_imgs = [fn_imgs]
-            # for fn_img in fn_imgs:
-            #     # time stamp image(s)
-            #     odmax.io.timestamp(fn_img, t)
-            #     res = odmax.io.geostamp(fn_img, fn_gpx)
-            # if res != 0:
-            #     work.set_description(f"Warning: {fn_img} could not be GPS stamped properly.")
         else:
             exif_dict = {}
 

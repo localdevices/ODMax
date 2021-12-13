@@ -79,9 +79,16 @@ def write_frame(img, path=".", prefix="still", encoder="jpg", exif="".encode()):
     :param img: ndarray or list of 6 ndarrays of size [H, W, 3]
     :param path: path to write frame to
     :param prefix: prefix of file to write to
+    :param exif: byte-formatted encoder info to pass as exif tags
     :return:
     """
     def to_pil(array):
+        """
+        Converts ND-array into PIL object
+
+        :param array: ND-array with colors (3rd dimension) in RGB order
+        :return: PIL image
+        """
         return Image.fromarray(cv2.cvtColor(array, cv2.COLOR_BGR2RGB))
 
 
@@ -95,8 +102,10 @@ def write_frame(img, path=".", prefix="still", encoder="jpg", exif="".encode()):
             # write file in PIL
             if encoder in pil_encoders:
                 # translate
-                encoder = pil_encoders[encoder]
-            to_pil(i).save(fn_out, encoder.lower(), exif=exif)
+                p_encoder = pil_encoders[encoder]
+            else:
+                p_encoder = encoder
+            to_pil(i).save(fn_out, p_encoder.lower(), exif=exif)
             # cv2.imwrite(fn_out, i)
             fns.append(fn_out)
         return fns
@@ -134,35 +143,3 @@ def get_gpx(fn):
     return gpxpy.parse(helpers.exiftool('-ee', '-p', f"{gpx_fmt_fn}", fn))
 
 
-def timestamp(fn, t):
-    """
-    time stamps an existing file containing a still image.
-
-    :param fn: existing file with still image
-    :param t: datetime object, to write to still image's exif tag
-    :return:
-    """
-    assert(isinstance(t, datetime)), f"{t} is not a datetime object"
-    if not (os.path.isfile(fn)):
-        raise IOError(f"File {fn} does not exist")
-    datetimestr = t.strftime("%Y-%m-%d %H:%M:%SZ")
-    subsectimestr = t.strftime("%f")[0:-3]
-    subsecdatetimestr = t.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + "Z"
-    # perform exif actions
-    cmd = f'exiftool -DateTimeOriginal="{datetimestr}" -SubSecTimeOriginal="{subsectimestr}" -SubSecDateTimeOriginal="{subsecdatetimestr}" -overwrite_original {fn} >{null_output}'
-    os.system(cmd)
-
-def geostamp(fn_img, fn_gpx):
-    if not (os.path.isfile(fn_img)):
-        raise IOError(f"File {fn_img} does not exist")
-    if not (os.path.isfile(fn_gpx)):
-        raise IOError(f"File {fn_gpx} does not exist")
-    exif_args = (
-        "-Geotag".encode(),
-        fn_gpx.encode(),
-        '"-Geotime<SubSecDateTimeOriginal"'.encode(),
-        fn_img.encode()
-    )
-    cmd = f'exiftool -Geotag {fn_gpx} "-Geotime<SubSecDateTimeOriginal" -overwrite_original {fn_img} >{null_output}'
-    res = os.system(cmd)
-    return res
