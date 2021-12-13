@@ -4,13 +4,20 @@ import cv2
 from odmax import consts, helpers
 from datetime import datetime
 import gpxpy
+from PIL import Image
 
+# high level variables
 PATH = os.path.dirname(__file__)
 gpx_fmt_fn = os.path.join(PATH, "gpx.fmt")
 if os.name == "posix":
     null_output = "/dev/null 2>&1"
 else:
     null_output = "nul"
+
+# pil uses specific encoder names such as "jpeg", translate if necessary using the below dict
+pil_encoders = {
+    "jpg": "jpeg"
+}
 
 def open_file(fn):
     """
@@ -64,7 +71,7 @@ def read_frame(f, n):
     else:
         raise IOError(f"The requested frame {n} could not be extracted. Perhaps the videofile is damaged.")
 
-def write_frame(img, path=".", prefix="still", encoder="jpg"):
+def write_frame(img, path=".", prefix="still", encoder="jpg", exif="".encode()):
     """
     Writes a frame to a file. If a 6-face cube list is provided, 6 files will be written using
     "F", "R", "B", "L", "U", "D" as suffixes for "front", "right", "back", "left", "up" and "down".
@@ -74,6 +81,10 @@ def write_frame(img, path=".", prefix="still", encoder="jpg"):
     :param prefix: prefix of file to write to
     :return:
     """
+    def to_pil(array):
+        return Image.fromarray(cv2.cvtColor(array, cv2.COLOR_BGR2RGB))
+
+
     if isinstance(img, list):
         # a 6-face cube is provided, write 6 individual images
         assert (len(img)==6), f"6 images are expected with cube reprojection, but {len(img)} were found"
@@ -81,7 +92,12 @@ def write_frame(img, path=".", prefix="still", encoder="jpg"):
         for i, c in zip(img, consts.CUBE_SUFFIX):
             assert ((len(i.shape) == 3) and (i.shape[-1] >= 3)), "One of the images you provided is incorrectly shaped, must be 3 dimensional with the last dimension as RGB"
             fn_out = os.path.join(path, "{:s}_{:s}.{:s}".format(prefix, c, encoder.lower()))
-            cv2.imwrite(fn_out, i)
+            # write file in PIL
+            if encoder in pil_encoders:
+                # translate
+                encoder = pil_encoders[encoder]
+            to_pil(i).save(fn_out, encoder.lower(), exif=exif)
+            # cv2.imwrite(fn_out, i)
             fns.append(fn_out)
         return fns
     else:
