@@ -76,7 +76,7 @@ def write_frame(img, path=".", prefix="still", encoder="jpg"):
         fns = []
         for i, c in zip(img, consts.CUBE_SUFFIX):
             assert ((len(i.shape) == 3) and (i.shape[-1] >= 3)), "One of the images you provided is incorrectly shaped, must be 3 dimensional with the last dimension as RGB"
-            fn_out = os.path.join(path, "{:s}_{:s}.{:s}").format(prefix, c, encoder.lower())
+            fn_out = os.path.join(path, "{:s}_{:s}.{:s}".format(prefix, c, encoder.lower()))
             cv2.imwrite(fn_out, i)
             fns.append(fn_out)
         return fns
