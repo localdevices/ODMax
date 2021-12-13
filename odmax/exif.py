@@ -57,7 +57,6 @@ def set_gps_location(lat, lng, altitude):
 
     exiv_lat = (change_to_rational(lat_deg[0]), change_to_rational(lat_deg[1]), change_to_rational(lat_deg[2]))
     exiv_lng = (change_to_rational(lng_deg[0]), change_to_rational(lng_deg[1]), change_to_rational(lng_deg[2]))
-    print(f"ALTITUDE: {round(altitude, 1)} , {change_to_rational(round(altitude,1))}")
     gps_ifd = {
         piexif.GPSIFD.GPSVersionID: (2, 0, 0, 0),
         piexif.GPSIFD.GPSAltitudeRef: 1,
