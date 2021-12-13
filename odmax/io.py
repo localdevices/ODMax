@@ -1,5 +1,5 @@
 # I/O functionality for ODMax
-import os.path
+import os
 import cv2
 from odmax import consts, helpers
 from datetime import datetime
@@ -7,6 +7,10 @@ import gpxpy
 
 PATH = os.path.dirname(__file__)
 gpx_fmt_fn = os.path.join(PATH, "gpx.fmt")
+if os.name = "posix":
+    null_output = "nul"
+else:
+    null_output = "/dev/null 2>&1"
 
 def open_file(fn):
     """
@@ -129,7 +133,8 @@ def timestamp(fn, t):
     subsectimestr = t.strftime("%f")[0:-3]
     subsecdatetimestr = t.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + "Z"
     # perform exif actions
-    cmd = f'exiftool -DateTimeOriginal="{datetimestr}" -SubSecTimeOriginal="{subsectimestr}" -SubSecDateTimeOriginal="{subsecdatetimestr}" -overwrite_original {fn} >/dev/null 2>&1'
+    cmd = f'exiftool -DateTimeOriginal="{datetimestr}" -SubSecTimeOriginal="{subsectimestr}" -SubSecDateTimeOriginal="{subsecdatetimestr}" -overwrite_original {fn} >{null_output}'
+    print(cmd)
     os.system(cmd)
 
 def geostamp(fn_img, fn_gpx):
@@ -143,6 +148,6 @@ def geostamp(fn_img, fn_gpx):
         '"-Geotime<SubSecDateTimeOriginal"'.encode(),
         fn_img.encode()
     )
-    cmd = f'exiftool -Geotag {fn_gpx} "-Geotime<SubSecDateTimeOriginal" -overwrite_original {fn_img} >/dev/null 2>&1'
+    cmd = f'exiftool -Geotag {fn_gpx} "-Geotime<SubSecDateTimeOriginal" -overwrite_original {fn_img} >{null_output}'
     res = os.system(cmd)
     return res
