@@ -91,7 +91,12 @@ def write_frame(img, path=".", prefix="still", encoder="jpg", exif="".encode()):
         """
         return Image.fromarray(cv2.cvtColor(array, cv2.COLOR_BGR2RGB))
 
-
+    # deermine PIL encoder
+    if encoder in pil_encoders:
+        # translate
+        p_encoder = pil_encoders[encoder]
+    else:
+        p_encoder = encoder
     if isinstance(img, list):
         # a 6-face cube is provided, write 6 individual images
         assert (len(img)==6), f"6 images are expected with cube reprojection, but {len(img)} were found"
@@ -100,19 +105,13 @@ def write_frame(img, path=".", prefix="still", encoder="jpg", exif="".encode()):
             assert ((len(i.shape) == 3) and (i.shape[-1] >= 3)), "One of the images you provided is incorrectly shaped, must be 3 dimensional with the last dimension as RGB"
             fn_out = os.path.join(path, "{:s}_{:s}.{:s}".format(prefix, c, encoder.lower()))
             # write file in PIL
-            if encoder in pil_encoders:
-                # translate
-                p_encoder = pil_encoders[encoder]
-            else:
-                p_encoder = encoder
             to_pil(i).save(fn_out, p_encoder.lower(), exif=exif)
-            # cv2.imwrite(fn_out, i)
             fns.append(fn_out)
         return fns
     else:
         # a single image is provided
         fn_out = os.path.join(path, "{:s}.{:s}").format(prefix, encoder.lower())
-        cv2.imwrite(fn_out, img)
+        to_pil(img).save(fn_out, p_encoder.lower(), exif=exif)
         return fn_out
 
 def get_exif(fn, fn_out):

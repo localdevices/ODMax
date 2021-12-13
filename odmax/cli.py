@@ -104,9 +104,6 @@ def main():
     else:
         frame_datetime = frame_t
     work = tqdm(range(len(frame_n)))
-    #
-    # work = tqdm(zip(frame_n, frame_datetime))
-    import time
     for i in work:
         n = frame_n[i]
         t = frame_datetime[i]
