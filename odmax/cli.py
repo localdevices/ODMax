@@ -49,9 +49,12 @@ def main():
     else:
         print(f"exiftool          : NOT found. Processing WITHOUT GPS coordinates. Install exiftool if you wish to process with coordinates.")
 
-    print(f"======================")
+    print(f"====================")
     print(f"Start processing:")
-    print(f"======================")
+    print(f"====================")
+    print(f"Collecting metadata:")
+    print(f"--------------------")
+
     f = odmax.io.open_file(options.infile)
     # get start and end frame
     start_frame = odmax.io.get_frame_number(f, options.start_time)
@@ -79,6 +82,10 @@ def main():
             )
             )
             start_datetime = point.time
+    print(f"-----------------------")
+    print(f"Running for all frames:")
+    print(f"-----------------------")
+
     frame_n = list(range(start_frame, end_frame, options.d_frame))
     # compute seconds from start
     frame_t = [frame/fps for frame in frame_n]
@@ -86,10 +93,8 @@ def main():
     if exif:
         # prepare all info for exiftool time stamping
         frame_datetime = [start_datetime + timedelta(seconds=t) for t in frame_t]
-        print(frame_datetime)
     else:
         frame_datetime = frame_t
-    print(len(frame_datetime), len(frame_n))
     work = tqdm(range(len(frame_n)))
     #
     # work = tqdm(zip(frame_n, frame_datetime))
@@ -97,7 +102,7 @@ def main():
     for i in work:
         n = frame_n[i]
         t = frame_datetime[i]
-        work.set_description("Processing frame {:05d}".format(n))
+        work.set_description("Processing frame {:5d}".format(n))
         img = odmax.io.read_frame(f, n)
         if options.reproject:
             # reproject img to faces
