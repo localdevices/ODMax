@@ -1,5 +1,5 @@
 import shutil
-from subprocess import Popen, PIPE, call, run
+from subprocess import Popen, PIPE
 
 def assert_cli_exe(cmd):
     """
@@ -21,7 +21,11 @@ def gpx_find_first_timestamp(gpx):
     for track in gpx.tracks:
         for segment in track.segments:
             for point in segment.points:
+                print(point.latitude)
+                print(point.latitude)
+                print(point.time)
                 # lat, lon, elev, time = point.latitude, point.longitude, point.elevation, point.time
+                print('Point at ({0},{1}) -> {2}, time: {3}'.format(point.latitude, point.longitude, point.elevation, point.time))
                 if point.time is not None:
                     break
     return point
