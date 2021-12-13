@@ -7,10 +7,10 @@ import gpxpy
 
 PATH = os.path.dirname(__file__)
 gpx_fmt_fn = os.path.join(PATH, "gpx.fmt")
-if os.name = "posix":
-    null_output = "nul"
-else:
+if os.name == "posix":
     null_output = "/dev/null 2>&1"
+else:
+    null_output = "nul"
 
 def open_file(fn):
     """
@@ -134,7 +134,6 @@ def timestamp(fn, t):
     subsecdatetimestr = t.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + "Z"
     # perform exif actions
     cmd = f'exiftool -DateTimeOriginal="{datetimestr}" -SubSecTimeOriginal="{subsectimestr}" -SubSecDateTimeOriginal="{subsecdatetimestr}" -overwrite_original {fn} >{null_output}'
-    print(cmd)
     os.system(cmd)
 
 def geostamp(fn_img, fn_gpx):
