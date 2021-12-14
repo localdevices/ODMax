@@ -1,12 +1,23 @@
 # I/O functionality for ODMax
-import os.path
+import os
 import cv2
 from odmax import consts, helpers
 from datetime import datetime
 import gpxpy
+from PIL import Image
 
+# high level variables
 PATH = os.path.dirname(__file__)
 gpx_fmt_fn = os.path.join(PATH, "gpx.fmt")
+if os.name == "posix":
+    null_output = "/dev/null 2>&1"
+else:
+    null_output = "nul"
+
+# pil uses specific encoder names such as "jpeg", translate if necessary using the below dict
+pil_encoders = {
+    "jpg": "jpeg"
+}
 
 def open_file(fn):
     """
@@ -60,7 +71,7 @@ def read_frame(f, n):
     else:
         raise IOError(f"The requested frame {n} could not be extracted. Perhaps the videofile is damaged.")
 
-def write_frame(img, path=".", prefix="still", encoder="jpg"):
+def write_frame(img, path=".", prefix="still", encoder="jpg", exif="".encode()):
     """
     Writes a frame to a file. If a 6-face cube list is provided, 6 files will be written using
     "F", "R", "B", "L", "U", "D" as suffixes for "front", "right", "back", "left", "up" and "down".
@@ -68,22 +79,39 @@ def write_frame(img, path=".", prefix="still", encoder="jpg"):
     :param img: ndarray or list of 6 ndarrays of size [H, W, 3]
     :param path: path to write frame to
     :param prefix: prefix of file to write to
+    :param exif: byte-formatted encoder info to pass as exif tags
     :return:
     """
+    def to_pil(array):
+        """
+        Converts ND-array into PIL object
+
+        :param array: ND-array with colors (3rd dimension) in RGB order
+        :return: PIL image
+        """
+        return Image.fromarray(cv2.cvtColor(array, cv2.COLOR_BGR2RGB))
+
+    # deermine PIL encoder
+    if encoder in pil_encoders:
+        # translate
+        p_encoder = pil_encoders[encoder]
+    else:
+        p_encoder = encoder
     if isinstance(img, list):
         # a 6-face cube is provided, write 6 individual images
         assert (len(img)==6), f"6 images are expected with cube reprojection, but {len(img)} were found"
         fns = []
         for i, c in zip(img, consts.CUBE_SUFFIX):
             assert ((len(i.shape) == 3) and (i.shape[-1] >= 3)), "One of the images you provided is incorrectly shaped, must be 3 dimensional with the last dimension as RGB"
-            fn_out = os.path.join(path, "{:s}_{:s}.{:s}").format(prefix, c, encoder.lower())
-            cv2.imwrite(fn_out, i)
+            fn_out = os.path.join(path, "{:s}_{:s}.{:s}".format(prefix, c, encoder.lower()))
+            # write file in PIL
+            to_pil(i).save(fn_out, p_encoder.lower(), exif=exif)
             fns.append(fn_out)
         return fns
     else:
         # a single image is provided
         fn_out = os.path.join(path, "{:s}.{:s}").format(prefix, encoder.lower())
-        cv2.imwrite(fn_out, img)
+        to_pil(img).save(fn_out, p_encoder.lower(), exif=exif)
         return fn_out
 
 def get_exif(fn, fn_out):
@@ -114,35 +142,3 @@ def get_gpx(fn):
     return gpxpy.parse(helpers.exiftool('-ee', '-p', f"{gpx_fmt_fn}", fn))
 
 
-def timestamp(fn, t):
-    """
-    time stamps an existing file containing a still image.
-
-    :param fn: existing file with still image
-    :param t: datetime object, to write to still image's exif tag
-    :return:
-    """
-    assert(isinstance(t, datetime)), f"{t} is not a datetime object"
-    if not (os.path.isfile(fn)):
-        raise IOError(f"File {fn} does not exist")
-    datetimestr = t.strftime("%Y-%m-%d %H:%M:%SZ")
-    subsectimestr = t.strftime("%f")[0:-3]
-    subsecdatetimestr = t.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + "Z"
-    # perform exif actions
-    cmd = f'exiftool -DateTimeOriginal="{datetimestr}" -SubSecTimeOriginal="{subsectimestr}" -SubSecDateTimeOriginal="{subsecdatetimestr}" -overwrite_original {fn} >/dev/null 2>&1'
-    os.system(cmd)
-
-def geostamp(fn_img, fn_gpx):
-    if not (os.path.isfile(fn_img)):
-        raise IOError(f"File {fn_img} does not exist")
-    if not (os.path.isfile(fn_gpx)):
-        raise IOError(f"File {fn_gpx} does not exist")
-    exif_args = (
-        "-Geotag".encode(),
-        fn_gpx.encode(),
-        '"-Geotime<SubSecDateTimeOriginal"'.encode(),
-        fn_img.encode()
-    )
-    cmd = f'exiftool -Geotag {fn_gpx} "-Geotime<SubSecDateTimeOriginal" {fn_img} >/dev/null 2>&1'
-    res = os.system(cmd)
-    return res

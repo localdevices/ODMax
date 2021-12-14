@@ -4,6 +4,7 @@ import sys
 import cv2
 import numpy as np
 import odmax
+import piexif
 from odmax.helpers import assert_cli_exe
 from optparse import OptionParser
 from datetime import datetime, timedelta
@@ -49,9 +50,12 @@ def main():
     else:
         print(f"exiftool          : NOT found. Processing WITHOUT GPS coordinates. Install exiftool if you wish to process with coordinates.")
 
-    print(f"======================")
+    print(f"====================")
     print(f"Start processing:")
-    print(f"======================")
+    print(f"====================")
+    print(f"Collecting metadata:")
+    print(f"--------------------")
+
     f = odmax.io.open_file(options.infile)
     # get start and end frame
     start_frame = odmax.io.get_frame_number(f, options.start_time)
@@ -60,14 +64,21 @@ def main():
     print(f"Processing from frame {start_frame} until frame {end_frame} on FPS {fps}")
     if exif:
         gpx = odmax.io.get_gpx(options.infile)
+        # make lists of lats, lons and timestamps, for use in interpolation
+        lats, lons, elevs, timestamps = odmax.helpers.parse_coords_from_gpx(gpx)
         # write to file
         fn_gpx = os.path.join(options.outpath, "track.gpx")
         xml = gpx.to_xml()
         with open(fn_gpx, "w") as txt:
             txt.write(xml)
-        point = odmax.helpers.gpx_find_first_timestamp(gpx)
+        try:
+            point = odmax.helpers.gpx_find_first_timestamp(gpx)
+        except:
+            print(f"Warning: No GPS information found in file {options.infile}. Skipping GPS parsing.")
+            exif = False
+    if exif:
         if point.time is None:
-            print(f"Warning: No time information found in {options.infile}. Skipping GPS parsing.")
+            print(f"Warning: No time information found in GPS track of {options.infile}. Skipping GPS parsing.")
             # set exif processing to False because we can't parse coordinates without any time info
             exif = False
         else:
@@ -79,6 +90,10 @@ def main():
             )
             )
             start_datetime = point.time
+    print(f"-----------------------")
+    print(f"Running for all frames:")
+    print(f"-----------------------")
+
     frame_n = list(range(start_frame, end_frame, options.d_frame))
     # compute seconds from start
     frame_t = [frame/fps for frame in frame_n]
@@ -86,18 +101,13 @@ def main():
     if exif:
         # prepare all info for exiftool time stamping
         frame_datetime = [start_datetime + timedelta(seconds=t) for t in frame_t]
-        print(frame_datetime)
     else:
         frame_datetime = frame_t
-    print(len(frame_datetime), len(frame_n))
     work = tqdm(range(len(frame_n)))
-    #
-    # work = tqdm(zip(frame_n, frame_datetime))
-    import time
     for i in work:
         n = frame_n[i]
         t = frame_datetime[i]
-        work.set_description("Processing frame {:05d}".format(n))
+        work.set_description("Processing frame {:5d}".format(n))
         img = odmax.io.read_frame(f, n)
         if options.reproject:
             # reproject img to faces
@@ -107,21 +117,23 @@ def main():
                 mode=options.mode,
                 overlap=options.overlap
             )
+        if exif:
+            # retrieve coordinate
+            lat, lon, elev = odmax.helpers.coord_interp(t.timestamp(), timestamps, lats, lons, elevs)
+            gps_exif = odmax.exif.set_gps_location(lat, lon, elev)
+            exif_dict = {
+                "GPS": gps_exif
+            }
+        else:
+            exif_dict = {}
+
         fn_imgs = odmax.io.write_frame(
             img,
             path=options.outpath,
             prefix="{:s}_{:04d}".format(options.prefix, n),
-            encoder=options.encoder
+            encoder=options.encoder,
+            exif=piexif.dump(exif_dict)
         )
-        if exif:
-            if not(isinstance(fn_imgs, list)):
-                fn_imgs = [fn_imgs]
-            for fn_img in fn_imgs:
-                # time stamp image(s)
-                odmax.io.timestamp(fn_img, t)
-                res = odmax.io.geostamp(fn_img, fn_gpx)
-            if res != 0:
-                work.set_description(f"Warning: {fn_img} could not be GPS stamped properly.")
 
 def create_parser():
     parser = OptionParser()

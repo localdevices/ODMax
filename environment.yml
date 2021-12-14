@@ -11,5 +11,4 @@ dependencies:
   - cartopy
   - jupyter
   - pip:
-    - PyExifTool
     - git+https://github.com/localdevices/py360convert.git
