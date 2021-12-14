@@ -168,6 +168,8 @@ class Frame:
             coordstr = "Location: unknown"
         if self.timestamp is not None:
             timestr = "Time: " + self.timestamp.strftime("%Y-%m-%d %H:%M:%S.%f")[0:-3] + "Z"
+        else:
+            timestr = "Time: unknown"
         if isinstance(self.img, list):
             # a 6-face cube is provided, write 6 individual images
             assert (len(self.img) == 6), f"6 images are expected with cube reprojection, but {len(self.img)} were found"
