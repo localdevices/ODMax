@@ -1,10 +1,14 @@
 #!/usr/bin/python3
 import os.path
 import sys
+import cv2
 import numpy as np
 import odmax
+import piexif
+from odmax.helpers import assert_cli_exe
 from optparse import OptionParser
-
+from datetime import datetime, timedelta
+from tqdm import tqdm
 
 def main():
     """
@@ -24,6 +28,7 @@ def main():
         raise ValueError(f"End time {options.end_time} is smaller or equal than start time {options.start_time}")
     if options.d_frame < 1:
         raise ValueError(f"Frame difference {options.d_frame} is smaller than one, has to be at least one")
+    exif = assert_cli_exe("exiftool")
     # do something
     print(f"Processing video  : {options.infile}")
     print(f"Output path       : {options.outpath}")
@@ -34,42 +39,51 @@ def main():
     print(f"Frame interval    : {options.d_frame}")
     print(f"Reprojection      : {'enabled' if options.reproject else 'disabled'}")
     if options.reproject:
-        print(f"Reprojection mode:   {options.mode}")
-        print(f"Face width:          {options.face_w if options.face_w is not None else 'not set, estimated from video'}")
+        print(f"Reprojection mode : {options.mode}")
+        print(f"Face width        : {options.face_w if options.face_w is not None else 'not set, estimated from video'}")
     if not(os.path.isdir(options.outpath)):
         print(f"Output path {options.outpath} does not exist, creating path...")
         os.makedirs(options.outpath)
-    print(f"======================")
-    print(f"Start processing:")
-    print(f"======================")
-    f = odmax.io.open_file(options.infile)
-    # get start and end frame
-    start_frame = odmax.io.get_frame_number(f, options.start_time)
-    end_frame = odmax.io.get_frame_number(f, options.end_time)
-    # TODO: extract metadata
-    frame_n = list(range(start_frame, end_frame, options.d_frame))
-    for n in frame_n:
-        # extract frame
-        print("Processing frame {:05d}".format(n))
-        img = odmax.io.read_frame(f, n)
-        if options.reproject:
-            # reproject img to faces
-            img = odmax.process.reproject_cube(
-                img,
-                face_w=options.face_w,
-                mode=options.mode,
-                overlap=options.overlap
-            )
-        # TODO: time stamp img
-        # write file or files in case of cube
-        odmax.io.write_frame(
-            img,
-            path=options.outpath,
-            prefix="{:s}_{:04d}".format(options.prefix, n),
-            encoder=options.encoder
-        )
-    print("")
+    if exif:
+        print(f"exiftool          : found! Processing with GPS coordinates if available")
+    else:
+        print(f"exiftool          : NOT found. Processing WITHOUT GPS coordinates. Install exiftool if you wish to process with coordinates.")
 
+    print(f"====================")
+    print(f"Start processing:")
+    print(f"====================")
+    print(f"Collecting metadata:")
+    print(f"--------------------")
+    # make a Video object
+    Video = odmax.Video(options.infile)
+    # get start and end frame
+    start_frame = odmax.io.get_frame_number(Video.cap, options.start_time)
+    end_frame = odmax.io.get_frame_number(Video.cap, options.end_time)
+    fps = Video.fps
+    print(f"Processing from frame {start_frame} until frame {end_frame} on FPS {fps}")
+    print(f"-----------------------")
+    print(f"Running for all frames:")
+    print(f"-----------------------")
+
+    frame_n = list(range(start_frame, end_frame, options.d_frame))
+    # make a list of work to do
+    work = tqdm(frame_n)
+    for n in work:
+        work.set_description("Processing frame {:5d}".format(n))
+        # extract a Frame object
+        Frame = Video.get_frame(
+            n,
+            options.reproject,
+            face_w=options.face_w,
+            mode=options.mode,
+            overlap=options.overlap
+        )
+        # write to files(s)
+        fn_imgs = Frame.to_file(
+            path=options.outpath,
+            prefix=options.prefix,
+            encoder=options.encoder,
+        )
 
 def create_parser():
     parser = OptionParser()

@@ -1,8 +1,24 @@
 # I/O functionality for ODMax
-import os.path
+import os
 import cv2
-from odmax import consts
+from odmax import helpers
 from datetime import datetime
+import gpxpy
+import piexif
+from PIL import Image
+
+# high level variables
+PATH = os.path.dirname(__file__)
+gpx_fmt_fn = os.path.join(PATH, "gpx.fmt")
+if os.name == "posix":
+    null_output = "/dev/null 2>&1"
+else:
+    null_output = "nul"
+
+# pil uses specific encoder names such as "jpeg", translate if necessary using the below dict
+pil_encoders = {
+    "jpg": "jpeg"
+}
 
 def open_file(fn):
     """
@@ -56,28 +72,39 @@ def read_frame(f, n):
     else:
         raise IOError(f"The requested frame {n} could not be extracted. Perhaps the videofile is damaged.")
 
-def write_frame(img, path=".", prefix="still", encoder="jpg"):
+def write_frame(img, fn, encoder="jpg", exif_dict={}):
+# def write_frame(img, path=".", prefix="still", encoder="jpg", exif="".encode()):
     """
     Writes a frame to a file. If a 6-face cube list is provided, 6 files will be written using
     "F", "R", "B", "L", "U", "D" as suffixes for "front", "right", "back", "left", "up" and "down".
 
     :param img: ndarray or list of 6 ndarrays of size [H, W, 3]
-    :param path: path to write frame to
-    :param prefix: prefix of file to write to
+    :param fn: path to write frame to
+    :param encoder: PIL compatible encoder to use for writing
+    :param exif_dict: dictionary with EXIF tag groups and tags within groups (e.g. "GPS")
     :return:
     """
-    if isinstance(img, list):
-        # a 6-face cube is provided, write 6 individual images
-        assert (len(img)==6), f"6 images are expected with cube reprojection, but {len(img)} were found"
-        for i, c in zip(img, consts.CUBE_SUFFIX):
-            assert ((len(i.shape) == 3) and (i.shape[-1] >= 3)), "One of the images you provided is incorrectly shaped, must be 3 dimensional with the last dimension as RGB"
-            fn_out = os.path.join(path, "{:s}_{:s}.{:s}").format(prefix, c, encoder.lower())
-            cv2.imwrite(fn_out, i)
-    else:
-        # a single image is provided
-        fn_out = os.path.join(path, "{:s}.{:s}").format(prefix, encoder.lower())
-        cv2.imwrite(fn_out, img)
+    def to_pil(array):
+        """
+        Converts ND-array into PIL object
 
+        :param array: ND-array with colors (3rd dimension) in RGB order
+        :return: PIL image
+        """
+        return Image.fromarray(cv2.cvtColor(array, cv2.COLOR_BGR2RGB))
+
+    # deermine PIL encoder
+    if encoder in pil_encoders:
+        # translate
+        p_encoder = pil_encoders[encoder]
+    else:
+        p_encoder = encoder
+    try:
+        exif = piexif.dump(exif_dict)
+    except:
+        raise ValueError(f"EXIF dict is invalid {exif_dict}")
+    # now save with the intended metadata and filename
+    to_pil(img).save(fn, p_encoder.lower(), exif=exif)
 
 def get_exif(fn, fn_out):
     """
@@ -95,34 +122,15 @@ def get_exif(fn, fn_out):
     raise NotImplementedError("Not implemented yet")
 
 
-def get_gpx(fn, fn_out):
+def get_gpx(fn):
     """
     Reads the gpx track from a video and writes it to a file.
 
     :param fn: video filename
-    :param fn_out: text file to write exif tag to
-    :return:
+    :return: parsed gpx data
     """
     if not(os.path.isfile(fn)):
         raise IOError(f"File {fn} does not exist")
-    if not(os.path.isdir(os.path.split(fn_out)[0])):
-        raise IOError(f"Path {os.path.split(fn_out)[0]} is not available")
-    # TODO: return if GPX info is not found
-
-    # FIXME: complete this code
-    raise NotImplementedError("Not implemented yet")
+    return gpxpy.parse(helpers.exiftool('-ee', '-p', f"{gpx_fmt_fn}", fn))
 
 
-def timestamp(fn, t):
-    """
-    time stamps an existing file containing a still image.
-
-    :param fn: existing file with still image
-    :param t: datetime object, to write to still image's exif tag
-    :return:
-    """
-    if not(os.path.isfile(fn)):
-        raise IOError(f"File {fn} does not exist")
-    assert(isinstance(t, datetime)), f"{t} is not a datetime object"
-    # FIXME: complete this code
-    raise NotImplementedError("Not implemented yet")
