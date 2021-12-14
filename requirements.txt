@@ -3,3 +3,4 @@ gpxpy
 tqdm
 piexif
 gpfm
+matplotlib
