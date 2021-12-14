@@ -50,7 +50,7 @@ class Video:
                 # set exif processing to False because we can't parse coordinates without any time info
                 self.exif = False
             else:
-                print("Found first time stamp on lat: {}, lon: {}, elev: {}, time: {}".format(
+                print("Found first location and time stamp in video on lat: {}, lon: {}, elev: {}, time: {}".format(
                     point.latitude,
                     point.longitude,
                     point.elevation,
