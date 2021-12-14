@@ -46,7 +46,7 @@ class Video:
         # check if we have proper GPS data with time stamps available or not
         if self.exif:
             if point.time is None:
-                print(f"Warning: No time information found in GPS track of {options.infile}. Skipping GPS parsing.")
+                print(f"Warning: No time information found in GPS track of {fn}. Skipping GPS parsing.")
                 # set exif processing to False because we can't parse coordinates without any time info
                 self.exif = False
             else:
