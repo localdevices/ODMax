@@ -49,19 +49,3 @@ def parse_coords_from_gpx(gpx, remove_missing=True):
         timestamps = timestamps[np.isfinite(timestamps)]
     return lats, lons, elevs, timestamps
 
-
-def coord_interp(t, ts, lats, lons, elevs):
-    """
-    Interpolate latitude / longitude coordinate from a timestamp
-
-    :param t:
-    :param ts:
-    :param lats:
-    :param lons:
-    :param elevs:
-    :return:
-    """
-    lat = np.interp(t, ts, lats)
-    lon = np.interp(t, ts, lons)
-    elev = np.interp(t, ts, elevs)
-    return lat, lon, elev
