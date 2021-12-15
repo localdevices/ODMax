@@ -32,6 +32,9 @@ setup(
         "tqdm",
         "piexif",
         "matplotlib",
+        "pandas",
+        "geopandas",
+        "Pillow",
         "py360convert @ git+https://github.com/localdevices/py360convert.git",
     ],
     extras_require={

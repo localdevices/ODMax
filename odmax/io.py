@@ -20,6 +20,17 @@ pil_encoders = {
     "jpg": "jpeg"
 }
 
+
+def to_pil(array):
+    """
+    Converts ND-array into PIL object
+
+    :param array: ND-array with colors (3rd dimension) in RGB order
+    :return: PIL image
+    """
+    return Image.fromarray(cv2.cvtColor(array, cv2.COLOR_BGR2RGB))
+
+
 def open_file(fn):
     """
     Open file for reading by cv2.
@@ -72,28 +83,20 @@ def read_frame(f, n):
     else:
         raise IOError(f"The requested frame {n} could not be extracted. Perhaps the videofile is damaged.")
 
+
 def write_frame(img, fn, encoder="jpg", exif_dict={}):
-# def write_frame(img, path=".", prefix="still", encoder="jpg", exif="".encode()):
     """
-    Writes a frame to a file. If a 6-face cube list is provided, 6 files will be written using
+    Writes a frame to a file or bytestream. If a 6-face cube list is provided, 6 files will be written using
     "F", "R", "B", "L", "U", "D" as suffixes for "front", "right", "back", "left", "up" and "down".
 
     :param img: ndarray or list of 6 ndarrays of size [H, W, 3]
-    :param fn: path to write frame to
+    :param fn: path or io.BytesIO object to write frame to
     :param encoder: PIL compatible encoder to use for writing
     :param exif_dict: dictionary with EXIF tag groups and tags within groups (e.g. "GPS")
     :return:
     """
-    def to_pil(array):
-        """
-        Converts ND-array into PIL object
 
-        :param array: ND-array with colors (3rd dimension) in RGB order
-        :return: PIL image
-        """
-        return Image.fromarray(cv2.cvtColor(array, cv2.COLOR_BGR2RGB))
-
-    # deermine PIL encoder
+    # determine PIL encoder
     if encoder in pil_encoders:
         # translate
         p_encoder = pil_encoders[encoder]

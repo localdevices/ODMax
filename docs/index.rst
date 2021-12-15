@@ -9,7 +9,12 @@ Welcome to ODMax's documentation!
 
 ODMax is a command-line and API utility to convert 360-degree videos from platforms such as GoPro, or Google Insta
 series into 360 degree stills or Front, Right, Left, Back, Up and Down projected stills. A major use case for this
-tool is development of 3D point clouds and meshes in software such as OpenDroneMap.
+tool is development of 3D point clouds and meshes in software such as OpenDroneMap. The image below shows a demonstration
+of what is possible when connecting ODMax to OpenDroneMap. To use this functionality, please check out our demonstration
+notebooks.
+
+.. image:: img/ODM_point_cloud.gif
+
 
 .. note::
    ODMax has been created by `Rainbow Sensing <https://rainbowsensing.com>`_ to support local people, with local devices and software to monitor their.
