@@ -126,12 +126,15 @@ class Video:
             exif_dict = {}
         return Frame(img, n, t, coord, exif=self.exif, exif_dict=exif_dict)
 
-    def plot_gps(self, geographical=False, ax=None, plot_kwargs={}, tiles_kwargs={"zoom_level": 15}):
+    def plot_gps(self, geographical=False, ax=None, crs=None, tiles=None, plot_kwargs={}, zoom_level=8, tiles_kwargs={}):
         """
         Make a simple plot of the gps track in the Video
 
         :param geographical: bool, use a geographical plot, default False, requires cartopy to be installed
         :param ax: pass an axes that you already have, to add to existing axes
+        :param crs: cartopy.crs object, coordinate reference system (default: cartopy.crs.PlateCarree())
+        :param tiles: str, name of cartopy.io.img_tiles WMTS WMTS service, default: None, can be e.g. "OSM", "QuadtreeTiles", "GoogleTiles"
+        :param zoom_level: int, zoom level for chosen tile service, default 8.
         :param plot_kwargs: dictionary of options to pass to matplotlib.pyplot.plot
         :param tiles_kwargs: dictionary of options to pass to cartopy.axes.add_image
         :return: axes object
@@ -149,15 +152,17 @@ class Video:
                     from shapely.geometry import LineString
                 except:
                     raise ModuleNotFoundError('Geographic plotting requires cartopy. Please install it with "pip install cartopy" and try again')
-                tiles = cimgt.GoogleTiles()
                 bbox = list(np.array(LineString(self.gdf_gps.geometry.values).bounds)[[0, 2, 1, 3]])
-                proj = ccrs.PlateCarree()
-                ax = plt.subplot(projection=proj)
-                ax.set_extent(bbox, crs=proj)
-                ax.add_image(cimgt.QuadtreeTiles(), **tiles_kwargs)
+                if crs is None:
+                    crs = ccrs.PlateCarree()
+                ax = plt.subplot(projection=crs)
+                ax.set_extent(bbox, crs=ccrs.PlateCarree())
+                if tiles is not None:
+                    tiler = getattr(cimgt, tiles)()
+                    ax.add_image(tiler, zoom_level, **tiles_kwargs)
             else:
                 ax = f.add_subplot()
-            self.gdf_gps.plot(ax=ax, zorder=2, **plot_kwargs)
+            self.gdf_gps.plot(ax=ax, transform=ccrs.PlateCarree(), zorder=2, **plot_kwargs)
         return ax
 
 
