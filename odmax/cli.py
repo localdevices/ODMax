@@ -46,7 +46,6 @@ def main():
         os.makedirs(options.outpath)
     if exif:
         print(f"exiftool          : found! Processing with GPS coordinates if available")
-        # import exiftool
     else:
         print(f"exiftool          : NOT found. Processing WITHOUT GPS coordinates. Install exiftool if you wish to process with coordinates.")
 
@@ -55,84 +54,35 @@ def main():
     print(f"====================")
     print(f"Collecting metadata:")
     print(f"--------------------")
-
-    f = odmax.io.open_file(options.infile)
+    # make a Video object
+    Video = odmax.Video(options.infile)
     # get start and end frame
-    start_frame = odmax.io.get_frame_number(f, options.start_time)
-    end_frame = odmax.io.get_frame_number(f, options.end_time)
-    fps = f.get(cv2.CAP_PROP_FPS)
+    start_frame = odmax.io.get_frame_number(Video.cap, options.start_time)
+    end_frame = odmax.io.get_frame_number(Video.cap, options.end_time)
+    fps = Video.fps
     print(f"Processing from frame {start_frame} until frame {end_frame} on FPS {fps}")
-    if exif:
-        gpx = odmax.io.get_gpx(options.infile)
-        # make lists of lats, lons and timestamps, for use in interpolation
-        lats, lons, elevs, timestamps = odmax.helpers.parse_coords_from_gpx(gpx)
-        # write to file
-        fn_gpx = os.path.join(options.outpath, "track.gpx")
-        xml = gpx.to_xml()
-        with open(fn_gpx, "w") as txt:
-            txt.write(xml)
-        try:
-            point = odmax.helpers.gpx_find_first_timestamp(gpx)
-        except:
-            print(f"Warning: No GPS information found in file {options.infile}. Skipping GPS parsing.")
-            exif = False
-    if exif:
-        if point.time is None:
-            print(f"Warning: No time information found in GPS track of {options.infile}. Skipping GPS parsing.")
-            # set exif processing to False because we can't parse coordinates without any time info
-            exif = False
-        else:
-            print("Found first time stamp on lat: {}, lon: {}, elev: {}, time: {}".format(
-                point.latitude,
-                point.longitude,
-                point.elevation,
-                point.time.strftime("%Y-%m-%dT%H:%M:%S.%f")[0:-3] + "Z"
-            )
-            )
-            start_datetime = point.time
     print(f"-----------------------")
     print(f"Running for all frames:")
     print(f"-----------------------")
 
     frame_n = list(range(start_frame, end_frame, options.d_frame))
-    # compute seconds from start
-    frame_t = [frame/fps for frame in frame_n]
-    # compute datetimes
-    if exif:
-        # prepare all info for exiftool time stamping
-        frame_datetime = [start_datetime + timedelta(seconds=t) for t in frame_t]
-    else:
-        frame_datetime = frame_t
-    work = tqdm(range(len(frame_n)))
-    for i in work:
-        n = frame_n[i]
-        t = frame_datetime[i]
+    # make a list of work to do
+    work = tqdm(frame_n)
+    for n in work:
         work.set_description("Processing frame {:5d}".format(n))
-        img = odmax.io.read_frame(f, n)
-        if options.reproject:
-            # reproject img to faces
-            img = odmax.process.reproject_cube(
-                img,
-                face_w=options.face_w,
-                mode=options.mode,
-                overlap=options.overlap
-            )
-        if exif:
-            # retrieve coordinate
-            lat, lon, elev = odmax.helpers.coord_interp(t.timestamp(), timestamps, lats, lons, elevs)
-            gps_exif = odmax.exif.set_gps_location(lat, lon, elev)
-            exif_dict = {
-                "GPS": gps_exif
-            }
-        else:
-            exif_dict = {}
-
-        fn_imgs = odmax.io.write_frame(
-            img,
+        # extract a Frame object
+        Frame = Video.get_frame(
+            n,
+            options.reproject,
+            face_w=options.face_w,
+            mode=options.mode,
+            overlap=options.overlap
+        )
+        # write to files(s)
+        fn_imgs = Frame.to_file(
             path=options.outpath,
-            prefix="{:s}_{:04d}".format(options.prefix, n),
+            prefix=options.prefix,
             encoder=options.encoder,
-            exif=piexif.dump(exif_dict)
         )
 
 def create_parser():

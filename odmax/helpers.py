@@ -11,11 +11,12 @@ def assert_cli_exe(cmd):
     """
     return shutil.which(cmd) is not None
 
-def exiftool(*args):
+def exiftool(*args, warning=False):
     process = Popen(['exiftool'] + list(args), stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
-    if stderr:
-        print(f"WARNING: exceptions found during processing: {stderr.decode()}")
+    if warning:
+        if stderr:
+            print(f"WARNING: exceptions found during processing: {stderr.decode()}")
     return stdout.decode()
 
 def gpx_find_first_timestamp(gpx):

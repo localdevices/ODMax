@@ -1,9 +1,10 @@
 # I/O functionality for ODMax
 import os
 import cv2
-from odmax import consts, helpers
+from odmax import helpers
 from datetime import datetime
 import gpxpy
+import piexif
 from PIL import Image
 
 # high level variables
@@ -71,15 +72,16 @@ def read_frame(f, n):
     else:
         raise IOError(f"The requested frame {n} could not be extracted. Perhaps the videofile is damaged.")
 
-def write_frame(img, path=".", prefix="still", encoder="jpg", exif="".encode()):
+def write_frame(img, fn, encoder="jpg", exif_dict={}):
+# def write_frame(img, path=".", prefix="still", encoder="jpg", exif="".encode()):
     """
     Writes a frame to a file. If a 6-face cube list is provided, 6 files will be written using
     "F", "R", "B", "L", "U", "D" as suffixes for "front", "right", "back", "left", "up" and "down".
 
     :param img: ndarray or list of 6 ndarrays of size [H, W, 3]
-    :param path: path to write frame to
-    :param prefix: prefix of file to write to
-    :param exif: byte-formatted encoder info to pass as exif tags
+    :param fn: path to write frame to
+    :param encoder: PIL compatible encoder to use for writing
+    :param exif_dict: dictionary with EXIF tag groups and tags within groups (e.g. "GPS")
     :return:
     """
     def to_pil(array):
@@ -97,22 +99,12 @@ def write_frame(img, path=".", prefix="still", encoder="jpg", exif="".encode()):
         p_encoder = pil_encoders[encoder]
     else:
         p_encoder = encoder
-    if isinstance(img, list):
-        # a 6-face cube is provided, write 6 individual images
-        assert (len(img)==6), f"6 images are expected with cube reprojection, but {len(img)} were found"
-        fns = []
-        for i, c in zip(img, consts.CUBE_SUFFIX):
-            assert ((len(i.shape) == 3) and (i.shape[-1] >= 3)), "One of the images you provided is incorrectly shaped, must be 3 dimensional with the last dimension as RGB"
-            fn_out = os.path.join(path, "{:s}_{:s}.{:s}".format(prefix, c, encoder.lower()))
-            # write file in PIL
-            to_pil(i).save(fn_out, p_encoder.lower(), exif=exif)
-            fns.append(fn_out)
-        return fns
-    else:
-        # a single image is provided
-        fn_out = os.path.join(path, "{:s}.{:s}").format(prefix, encoder.lower())
-        to_pil(img).save(fn_out, p_encoder.lower(), exif=exif)
-        return fn_out
+    try:
+        exif = piexif.dump(exif_dict)
+    except:
+        raise ValueError(f"EXIF dict is invalid {exif_dict}")
+    # now save with the intended metadata and filename
+    to_pil(img).save(fn, p_encoder.lower(), exif=exif)
 
 def get_exif(fn, fn_out):
     """

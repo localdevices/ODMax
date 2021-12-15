@@ -2,3 +2,5 @@ opencv-python-headless
 gpxpy
 tqdm
 piexif
+gpfm
+matplotlib
