@@ -1,4 +1,5 @@
 # here, high-level API classes are defined
+import io as IO
 import os
 import numpy as np
 from scipy.interpolate import interp1d
@@ -115,6 +116,48 @@ class Video:
             exif_dict = {}
         return Frame(img, n, t, coord, exif=self.exif, exif_dict=exif_dict)
 
+    def plot_gps(self, geographical=False, ax=None, plot_kwargs={}, tiles_kwargs={"zoom_level": 17}):
+        """
+        Make a simple plot of the gps track in the Video
+
+        :param geographical: bool, use a geographical plot, default False, requires cartopy to be installed
+        :param ax: pass an axes that you already have, to add to existing axes
+        :param plot_kwargs: dictionary of options to pass to matplotlib.pyplot.plot
+        :param tiles_kwargs: dictionary of options to pass to cartopy.axes.add_image
+        :return: axes object
+        """
+        if self.gdf_gps is None:
+            raise AttributeError("GPS data not available")
+        # determine a bbox
+        if ax is None:
+            f = plt.figure(figsize=(13, 8))
+            if geographical:
+                try:
+                    import cartopy
+                    import cartopy.io.img_tiles as cimgt
+                    import cartopy.crs as ccrs
+                    from shapely.geometry import LineString
+                except:
+                    raise ModuleNotFoundError('Geographic plotting requires cartopy. Please install it with "pip install cartopy" and try again')
+                tiles = cimgt.GoogleTiles()
+                bbox = list(np.array(LineString(self.gdf_gps.geometry.values).bounds)[[0, 2, 1, 3]])
+                proj = ccrs.PlateCarree()
+                ax = plt.subplot(projection=proj)
+                ax.set_extent(bbox, crs=proj)
+                ax.add_image(cimgt.QuadtreeTiles(), zoom_level=1, alpha=0.5)
+            else:
+                ax = f.add_subplot()
+            self.gdf_gps.plot(ax=ax, zorder=2, **plot_kwargs)
+
+        return ax
+
+
+
+
+
+            # setup a plot with cartopy
+
+
 class Frame:
     def __init__(self, img, n, t, coord, exif=False, exif_dict={}):
         self.frame_number = n
@@ -158,6 +201,34 @@ class Frame:
             fn = os.path.join(path, "{:s}_{:04d}.{:s}").format(prefix, self.frame_number, encoder.lower())
             odmax.io.write_frame(self.img, fn, encoder=encoder, exif_dict=self.exif_dict)
             return fn
+
+    def to_bytes(self, encoder="jpg"):
+        """
+        Write a frame to one or more bytestreams, ready to push to an online service.
+        If cube-face reprojection has been used 6 images will be written in a list of bytestreams
+
+        :param encoder: str, default is "jpg"
+        :return:
+        """
+        if isinstance(self.img, list):
+            # a 6-face cube is provided, write 6 individual images
+            assert (len(self.img) == 6), f"6 images are expected with cube reprojection, but {len(self.img)} were found"
+            bytes = []
+            for i, c in zip(self.img, odmax.consts.CUBE_SUFFIX):
+                assert ((len(i.shape) == 3) and (i.shape[
+                                                     -1] >= 3)), "One of the images you provided is incorrectly shaped, must be 3 dimensional with the last dimension as RGB"
+                buffer = IO.BytesIO()
+                # write file in PIL
+                odmax.io.write_frame(i, buffer, encoder=encoder, exif_dict=self.exif_dict)
+                # to_pil(i).save(fn_out, p_encoder.lower(), exif=exif)
+                buffer.seek(0)
+                bytes.append(buffer.read())
+            return bytes
+        else:
+            buffer = IO.BytesIO()
+            odmax.io.write_frame(self.img, buffer, encoder=encoder, exif_dict=self.exif_dict)
+            buffer.seek(0)
+            return buffer.read()
 
     def plot(self, figsize=(8, 8)):
         # make a simple plot, and make it dependent on this
