@@ -96,7 +96,7 @@ def write_frame(img, fn, encoder="jpg", exif_dict={}):
     :return:
     """
 
-    # deermine PIL encoder
+    # determine PIL encoder
     if encoder in pil_encoders:
         # translate
         p_encoder = pil_encoders[encoder]
