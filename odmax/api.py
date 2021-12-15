@@ -14,6 +14,14 @@ exif_available = odmax.helpers.assert_cli_exe("exiftool")
 
 class Video:
     def __init__(self, fn):
+        """
+        Create a new Video instance. Properties of the video, relevant for extracting frames will be extracted.
+        Also GPS information, if available (tested for GoPro .mp4 format) will be automatically extracted, provided
+        that `exiftool` is available on your system and in your system's path. You will receive warnings if `exiftool`
+        is not available.
+
+        :param fn: filename of video file on disk
+        """
         self.fn = fn
         self.cap = odmax.io.open_file(self.fn)
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
@@ -89,7 +97,9 @@ class Video:
         """
         Get one Frame from Video for processing
 
-        :param n: frame number
+        :param n: int, frame number
+        :param reproject: bool, set to True if you want to reproject to 6 cube-faces
+        :param kwargs: keyword arguments for cube reprojection, see odmax.process.reproject_cube.
         :return: odmax.Frame instance
         """
         # compute timestamp of requested frame
@@ -116,7 +126,7 @@ class Video:
             exif_dict = {}
         return Frame(img, n, t, coord, exif=self.exif, exif_dict=exif_dict)
 
-    def plot_gps(self, geographical=False, ax=None, plot_kwargs={}, tiles_kwargs={"zoom_level": 17}):
+    def plot_gps(self, geographical=False, ax=None, plot_kwargs={}, tiles_kwargs={"zoom_level": 15}):
         """
         Make a simple plot of the gps track in the Video
 
@@ -144,26 +154,28 @@ class Video:
                 proj = ccrs.PlateCarree()
                 ax = plt.subplot(projection=proj)
                 ax.set_extent(bbox, crs=proj)
-                ax.add_image(cimgt.QuadtreeTiles(), zoom_level=1, alpha=0.5)
+                ax.add_image(cimgt.QuadtreeTiles(), **tiles_kwargs)
             else:
                 ax = f.add_subplot()
             self.gdf_gps.plot(ax=ax, zorder=2, **plot_kwargs)
-
         return ax
-
-
-
-
-
-            # setup a plot with cartopy
 
 
 class Frame:
     def __init__(self, img, n, t, coord, exif=False, exif_dict={}):
+        """
+        Create a new Frame instance. A Frame holds the image, but also which frame number it came from, the coordinate
+        of the frame if GPS information is available, and the EXIF tag that belongs to the frame, comprised of a dictionary
+
+        :param img: ND-array [M, N, 3] holding the RGB image
+        :param n: frame number
+        :param t: timestamp as datetime.datetime object
+        :param coord: pandas DataFrame row holding latitude, longitude, elevation and time
+        :param exif_dict: dict, holding EXIF tag information, e.g. exif_dict["GPS"] should contain a dict with GPS tags
+        """
         self.frame_number = n
         self.timestamp = t
         self.coord = coord
-        self.exif = exif
         self.exif_dict = exif_dict
         self.img = img
 
@@ -193,7 +205,6 @@ class Frame:
                 fn = os.path.join(path, "{:s}_{:04d}_{:s}.{:s}".format(prefix, self.frame_number, c, encoder.lower()))
                 # write file in PIL
                 odmax.io.write_frame(i, fn, encoder=encoder, exif_dict=self.exif_dict)
-                # to_pil(i).save(fn_out, p_encoder.lower(), exif=exif)
                 fns.append(fn)
             return fns
         else:
@@ -208,7 +219,7 @@ class Frame:
         If cube-face reprojection has been used 6 images will be written in a list of bytestreams
 
         :param encoder: str, default is "jpg"
-        :return:
+        :return: bytestream
         """
         if isinstance(self.img, list):
             # a 6-face cube is provided, write 6 individual images
@@ -230,7 +241,14 @@ class Frame:
             buffer.seek(0)
             return buffer.read()
 
-    def plot(self, figsize=(8, 8)):
+    def plot(self, figsize=(8, 8), rows=2, cols=3):
+        """
+
+        :param figsize: tuple (height, width) of figure, default: (8, 8)
+        :param rows: int, number of rows to use for plotting 6 cube-faces, default: 2
+        :param cols: int, number of cols to use for plotting 6 cube-faces, default: 3
+        :return: f, ax, figure and axes handle
+        """
         # make a simple plot, and make it dependent on this
         f = plt.figure(figsize=figsize)
         if self.coord is not None:
@@ -245,7 +263,7 @@ class Frame:
             # a 6-face cube is provided, write 6 individual images
             assert (len(self.img) == 6), f"6 images are expected with cube reprojection, but {len(self.img)} were found"
             for n, (i, c) in enumerate(zip(self.img, odmax.consts.CUBE_SUFFIX)):
-                ax = plt.subplot(2, 3, n + 1)
+                ax = plt.subplot(rows, cols, n + 1)
                 ax.imshow(i)
                 ax.set_title(c)
                 ax.tick_params(
@@ -266,8 +284,4 @@ class Frame:
                 bottom=False,
             )
         f.suptitle(f"{timestr} \n {coordstr}")
-
-        plt.show()
-
-
-
+        return f, ax
