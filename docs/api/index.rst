@@ -20,7 +20,7 @@ Video class
 -----------
 
 .. automodule:: odmax.Video
-    :members: __init__, get_gps, get_frame
+    :members: __init__, get_gps, get_frame, plot_gps
     :imported-members:
     :undoc-members:
     :show-inheritance:
@@ -29,7 +29,7 @@ Frame class
 -----------
 
 .. automodule:: odmax.Frame
-    :members: __init__, to_file, plot
+    :members: __init__, to_file, to_bytes, plot
     :imported-members:
     :undoc-members:
     :show-inheritance:
@@ -39,7 +39,7 @@ Input-output
 ------------
 
 .. automodule:: odmax.io
-    :members: open_file, get_frame_number, read_frame, write_frame, get_exif, get_gpx
+    :members: to_pil, open_file, get_frame_number, read_frame, write_frame, get_gpx
     :imported-members:
     :undoc-members:
     :show-inheritance:

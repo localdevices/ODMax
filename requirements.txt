@@ -6,3 +6,4 @@ gpfm
 matplotlib
 pandas
 geopandas
+Pillow
