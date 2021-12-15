@@ -85,9 +85,8 @@ def read_frame(f, n):
 
 
 def write_frame(img, fn, encoder="jpg", exif_dict={}):
-# def write_frame(img, path=".", prefix="still", encoder="jpg", exif="".encode()):
     """
-    Writes a frame to a file. If a 6-face cube list is provided, 6 files will be written using
+    Writes a frame to a file or bytestream. If a 6-face cube list is provided, 6 files will be written using
     "F", "R", "B", "L", "U", "D" as suffixes for "front", "right", "back", "left", "up" and "down".
 
     :param img: ndarray or list of 6 ndarrays of size [H, W, 3]
