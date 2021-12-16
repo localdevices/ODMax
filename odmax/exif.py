@@ -1,7 +1,7 @@
 import os
 import piexif
 from fractions import Fraction
-
+# recipe derived from https://gist.github.com/c060604/8a51f8999be12fc2be498e9ca56adc72
 def to_deg(value, loc):
     """
     Convert decimal coordinates into degrees, munutes and seconds tuple
@@ -59,7 +59,7 @@ def set_gps_location(lat, lon, elev):
     exiv_lon = (change_to_rational(lon_deg[0]), change_to_rational(lon_deg[1]), change_to_rational(lon_deg[2]))
     gps_ifd = {
         piexif.GPSIFD.GPSVersionID: (2, 0, 0, 0),
-        piexif.GPSIFD.GPSAltitudeRef: 1,
+        piexif.GPSIFD.GPSAltitudeRef: 1 if elev < 0 else 0,
         piexif.GPSIFD.GPSAltitude: change_to_rational(round(elev, 1)),
         piexif.GPSIFD.GPSLatitudeRef: lat_deg[3],
         piexif.GPSIFD.GPSLatitude: exiv_lat,
