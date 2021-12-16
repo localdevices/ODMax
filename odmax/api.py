@@ -126,11 +126,12 @@ class Video:
             exif_dict = {}
         return Frame(img, n, t, coord, exif=self.exif, exif_dict=exif_dict)
 
-    def plot_gps(self, geographical=False, ax=None, crs=None, tiles=None, plot_kwargs={}, zoom_level=8, tiles_kwargs={}):
+    def plot_gps(self, geographical=False, figsize=(13, 8), ax=None, crs=None, tiles=None, plot_kwargs={}, zoom_level=8, tiles_kwargs={}):
         """
         Make a simple plot of the gps track in the Video
 
         :param geographical: bool, use a geographical plot, default False, requires cartopy to be installed
+        :param figsize: tuple, passed to plt.figure as figsize
         :param ax: pass an axes that you already have, to add to existing axes
         :param crs: cartopy.crs object, coordinate reference system (default: cartopy.crs.PlateCarree())
         :param tiles: str, name of cartopy.io.img_tiles WMTS WMTS service, default: None, can be e.g. "OSM", "QuadtreeTiles", "GoogleTiles"
@@ -139,11 +140,11 @@ class Video:
         :param tiles_kwargs: dictionary of options to pass to cartopy.axes.add_image
         :return: axes object
         """
-        if self.gdf_gps is None:
+        if not(self.exif):
             raise AttributeError("GPS data not available")
         # determine a bbox
         if ax is None:
-            f = plt.figure(figsize=(13, 8))
+            f = plt.figure(figsize=figsize)
             if geographical:
                 try:
                     import cartopy
@@ -151,7 +152,7 @@ class Video:
                     import cartopy.crs as ccrs
                     from shapely.geometry import LineString
                 except:
-                    raise ModuleNotFoundError('Geographic plotting requires cartopy. Please install it with "pip install cartopy" and try again')
+                    raise ModuleNotFoundError('Geographic plotting requires cartopy. Please install it with "conda install cartopy" and try again')
                 bbox = list(np.array(LineString(self.gdf_gps.geometry.values).bounds)[[0, 2, 1, 3]])
                 if crs is None:
                     crs = ccrs.PlateCarree()
@@ -160,9 +161,13 @@ class Video:
                 if tiles is not None:
                     tiler = getattr(cimgt, tiles)()
                     ax.add_image(tiler, zoom_level, **tiles_kwargs)
+                self.gdf_gps.plot(ax=ax, transform=ccrs.PlateCarree(), zorder=2, **plot_kwargs)
             else:
                 ax = f.add_subplot()
-            self.gdf_gps.plot(ax=ax, transform=ccrs.PlateCarree(), zorder=2, **plot_kwargs)
+                self.gdf_gps.plot(ax=ax, zorder=2, **plot_kwargs)
+        else:
+            self.gdf_gps.plot(ax=ax, zorder=2, **plot_kwargs)
+
         return ax
 
 
