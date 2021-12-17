@@ -1,13 +1,11 @@
 version: 2
 
-conda:
-  environment: environment.yml
-
-python:
-  version: 3.8
-  install:
-    - requirements: docs/requirements.txt
-
 build:
+  os: "ubuntu-20.04"
+  tools:
+    python: "mambaforge-4.10"
   apt_packages:
     - libimage-exiftool-perl
+
+conda:
+  environment: docs/environment.yml
