@@ -11,7 +11,7 @@ with open("README.md") as readme_file:
 
 setup(
     name="odmax",
-    version="0.1.1",
+    version="0.1.1.dev0",
     description="odmax extracts still images from GoPro 360 camera types, including GNSS location and time information",
     long_description=readme + "\n\n",
     long_description_content_type="text/markdown",
