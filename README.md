@@ -10,7 +10,7 @@ We are seeking funding for the following frequently requested functionalities:
 * filtering options such as cloud masking, vegetation segmentation or other features
 * variable frame interval detection, based on feature changes (currently a fixed frame interval must be set) 
 
-If you wish to fund this work, please contact us at info@rainbowsensing.com
+If you wish to fund this or other work on features, please contact us at info@rainbowsensing.com.
 
 > **_note:_**  For instructions how to get Anaconda (with lots of pre-installed libraries) or Miniconda (light weight) installed, please go to https://docs.conda.io/projects/conda/en/latest/
 

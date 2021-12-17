@@ -27,6 +27,7 @@ if not(os.path.isdir(dst_dir)):
 
 # copy relevant notebooks
 shutil.copy(os.path.join(src_dir, "reprojection.ipynb"), dst_dir)
+shutil.copy(os.path.join(src_dir, "geotags.ipynb"), dst_dir)
 
 # also copy the README of the notebook folder
 shutil.copy(os.path.join(src_dir, "README.rst"), dst_dir)
