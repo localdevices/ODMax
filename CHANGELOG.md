@@ -7,6 +7,7 @@
 - debugged setup.py for pypi
 - fixed bug in notebooks
 - conda environment extended for windows install
+- integrated py360convert into ODMax code base (not maintained anymore on github / pypi)
 
 ### Security
 

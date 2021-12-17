@@ -101,6 +101,8 @@ License
 **ODMax** is licensed under AGPL Version 3 (see [LICENSE](./LICENSE) file).
 
 **ODMax** uses the following libraries and software with said licenses.
+py360convert is not being maintained actively, therefore the py360convert code has been integrated into the **ODMax**
+code base.
 
 | Package                | Version      | License                                            |
 |------------------------|--------------|----------------------------------------------------|

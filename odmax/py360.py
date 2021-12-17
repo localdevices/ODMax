@@ -1,4 +1,6 @@
 # original code py360convert from https://github.com/sunset1995/py360convert
+# py360convert is used under the MIT license
+
 import numpy as np
 from . import utils
 
