@@ -14,6 +14,13 @@ To install ODMax open a console, activate a python virtual environment if you wi
 
 This will install the library, API and command-line utility of ODMax.
 
+.. note::
+    For windows users, it may be difficult to get geographic libraries installed with the normal pip install procedure.
+    For windows users we therefore recommend that you follow the Developer install instructions and setup a ``conda``
+    environment using the ``environment.yml`` delivered with the code. This environment includes geopandas and cartopy.
+    After that follow the instructions above from within the established environment. We will deliver a conda package
+    soon so that you can simply install with ``conda install odmax``.
+
 Developer install
 ------------------
 If you want to download ODMax directly from git to easily have access to the latest developments or

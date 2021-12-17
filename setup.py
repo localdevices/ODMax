@@ -50,16 +50,13 @@ setup(
     license="AGPLv3",
     zip_safe=False,
     classifiers=[
-        # https://pypi.python.org/pypi?%3Aaction=list_classifiers
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Intended Audience :: Education",
         "Intended Audience :: Science/Research",
-        "Topic :: Scientific/Engineering :: Photogrammetry",
+        "Topic :: Scientific/Engineering :: GIS",
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
     ],
