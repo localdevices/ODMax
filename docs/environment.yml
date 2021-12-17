@@ -16,7 +16,6 @@ dependencies:
     - sphinx-gallery
     - pandoc
     - matplotlib
-    - git+https://github.com/localdevices/py360convert.git
     - git+https://github.com/localdevices/ODMax.git
 
     

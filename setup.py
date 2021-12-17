@@ -35,7 +35,6 @@ setup(
         "pandas==1.3.5",
         "geopandas==0.10.2",
         "Pillow==8.4.0",
-        "py360convert @ git+https://github.com/localdevices/py360convert.git",
     ],
     extras_require={
         "dev": ["pytest", "pytest-cov"],
