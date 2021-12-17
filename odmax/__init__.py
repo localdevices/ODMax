@@ -1,4 +1,4 @@
-__version__ = "0.1.1.dev0"
+__version__ = "0.1.1"
 from odmax import cli
 from odmax import consts
 from odmax import io
