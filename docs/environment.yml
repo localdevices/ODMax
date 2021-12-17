@@ -10,5 +10,15 @@ dependencies:
   - cartopy==0.18.0
   - jupyter==1.0.0
   - pip:
+    - sphinxcontrib-programoutput
+    - ipykernel
+    - nbsphinx
+    - sphinx-gallery
+    - pandoc
+    - matplotlib
     - git+https://github.com/localdevices/py360convert.git
     - git+https://github.com/localdevices/ODMax.git
+
+    
+    
+
