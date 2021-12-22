@@ -21,8 +21,8 @@ setup(
     packages=find_packages(),
     package_dir={"odmax": "odmax"},
     test_suite="tests",
-    use_scm_version=True,
-    setup_requires=["setuptools_scm"],
+    #use_scm_version=True,
+    #setup_requires=["setuptools_scm"],
     python_requires=">=3.8",
     install_requires=[
         "pip",
