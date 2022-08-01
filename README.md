@@ -1,6 +1,10 @@
 ODMax
 =====
 
+[![PyPI](https://badge.fury.io/py/odmax.svg)](https://pypi.org/project/odmax/)
+[![docs_latest](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://odmax.readthedocs.io/en/latest)
+[![License](https://img.shields.io/github/license/localdevices/odmax?style=flat)](https://github.com/localdevices/odmax/blob/main/LICENSE)
+
 **ODMax** is a utility to extract still frames from 360-degree video platforms such as GoPro or Insta. **ODMax** preserves the geoghraphical information
 in videos and adds the geolocation to stills so that they can be used for geospatial applications such as geospatial photogrammetry with OpenDroneMap, or Streetview applications.
 

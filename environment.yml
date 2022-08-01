@@ -4,9 +4,10 @@ channels:
   - conda-forge
 
 dependencies:
-  - pip==21.2.4
+  - pip=21.2.4
   - python=3.8
-  - matplotlib==3.5.0
-  - cartopy==0.18.0
-  - jupyter==1.0.0
-  - odmax==0.1.1
+  - matplotlib=3.5.0
+  - cartopy=0.18.0
+  - jupyter=1.0.0
+  - pip:
+    - odmax==0.1.1
