@@ -76,10 +76,9 @@ class Video:
         :return: Pandas DataFrame row with location (lat, lon, elev) and index as time epoch, using linear interpolation
         """
         if t <= self.df_gps.index[0]:
-            return self.df_gps.iloc[0]
+            return self.df_gps.drop(columns="geometry").iloc[0]
         if t >= self.df_gps.index[-1]:
-            return self.df_gps.iloc[-1]
-
+            return self.df_gps.drop(columns="geometry").iloc[-1]
         df_select = pd.concat(
             [
                 self.df_gps[self.df_gps.index <= t].iloc[-1:],
