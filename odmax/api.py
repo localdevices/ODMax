@@ -26,6 +26,7 @@ class Video:
         self.cap = odmax.io.open_file(self.fn)
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.start_datetime = None
+        self.exif = False
         if exif_available:
             self.exif = True
             self.gpx = odmax.io.get_gpx(self.fn)
