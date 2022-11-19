@@ -3,6 +3,34 @@
 import os
 
 from setuptools import setup, find_packages
+from pkg_resources import DistributionNotFound, get_distribution
+
+#https://stackoverflow.com/a/49338206
+def get_dist(pkgname):
+    try:
+        return get_distribution(pkgname)
+    except DistributionNotFound:
+        return None
+
+install_deps = [
+        "pip",
+        "numpy",
+        "gpxpy",
+        "tqdm",
+        "piexif",
+        "matplotlib",
+        "pandas",
+        "geopandas==0.10.2",
+        "Pillow",
+    ]
+
+# If any opencv package is available we can use it
+# as installing multiple opencv packages breaks things
+if (get_dist('opencv-contrib-python-headless') is None
+and get_dist('opencv-python-headless') is None
+and get_dist('opencv-contrib-python') is None
+and get_dist('opencv-python') is None):
+    install_deps.append('opencv-python-headless')
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -22,18 +50,7 @@ setup(
     package_dir={"odmax": "odmax"},
     test_suite="tests",
     python_requires=">=3.8",
-    install_requires=[
-        "pip",
-        "numpy",
-        "opencv-python-headless",
-        "gpxpy",
-        "tqdm",
-        "piexif",
-        "matplotlib",
-        "pandas",
-        "geopandas==0.10.2",
-        "Pillow",
-    ],
+    install_requires=install_deps,
     extras_require={
         "dev": ["pytest", "pytest-cov"],
         "optional": [],
